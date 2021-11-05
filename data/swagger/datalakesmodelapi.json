@@ -1,0 +1,280 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "Datalakes Model API"
+  },
+  "basePath": "/datalakesmodel",
+  "host": "api.datalakes-eawag.ch",
+  "tags": [
+    {
+      "name": "JSON",
+      "description": "Access to subsets of simulation outputs"
+    },
+    {
+      "name": "NetCDF",
+      "description": "Access to full simulation outputs"
+    }
+  ],
+  "paths": {
+    "/layer/{lake}/{datetime}/{depth}": {
+      "get": {
+        "tags": [
+          "JSON"
+        ],
+        "summary": "Get layer values",
+        "description": "Download a horizontal slice (or layer) of the lake simulation, for a given lake, time and depth. Data is returned in JSON format. The data is in a grid format where simulation cells have the properties: [ x, y, t, u, v ] \n x: X coordinate of cell in CH1903 / LV03 \n y: Y coordinate of cell in CH1903 / LV03 \n t: Water temperature in degC \n u: Northerly water velocity in m/s \n v: Easterly water velocity m/s",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "lake",
+            "in": "path",
+            "description": "Name of Lake",
+            "required": true,
+            "type": "string",
+            "minimum": 1,
+            "default": "geneva",
+            "enum": [
+              "geneva"
+            ]
+          },
+          {
+            "name": "datetime",
+            "in": "path",
+            "description": "Unix time in milliseconds",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "depth",
+            "in": "path",
+            "description": "Depth of slice (meters below surface)",
+            "required": true,
+            "type": "number"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/transect/{lake}/{datetime}/{x1}/{y1}/{x2}/{y2}": {
+      "get": {
+        "tags": [
+          "JSON"
+        ],
+        "summary": "Get transect values",
+        "description": "Download a transect for a given lake and datetime. Data is returned as a JSON object where: \n x: Distance along transect in m \n y: Depth in m \n z: Water temperature in degC \n z1: Water velocity magnitude in m/s",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "lake",
+            "in": "path",
+            "description": "Name of Lake",
+            "required": true,
+            "type": "string",
+            "minimum": 1,
+            "default": "geneva",
+            "enum": [
+              "geneva"
+            ]
+          },
+          {
+            "name": "datetime",
+            "in": "path",
+            "description": "Unix time in milliseconds",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "x1",
+            "in": "path",
+            "description": "X coordinate of start of slice in CH1903 / LV03",
+            "required": true,
+            "type": "number"
+          },
+          {
+            "name": "y1",
+            "in": "path",
+            "description": "Y coordinate of start of slice in CH1903 / LV03",
+            "required": true,
+            "type": "number"
+          },
+          {
+            "name": "x2",
+            "in": "path",
+            "description": "X coordinate of end of slice in CH1903 / LV03",
+            "required": true,
+            "type": "number"
+          },
+          {
+            "name": "y2",
+            "in": "path",
+            "description": "Y coordinate of end of slice in CH1903 / LV03",
+            "required": true,
+            "type": "number"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/timeline/{lake}/{datetime}/{x}/{y}": {
+      "get": {
+        "tags": [
+          "JSON"
+        ],
+        "summary": "Get one week timeline at given point",
+        "description": "Download a one week timeline of data for a given point. Data is returned as a JSON object where: \n x: Unix time in seconds \n y: Depth in m \n z: Water temperature in degC \n z1: Water velocity magnitude in m/s",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "lake",
+            "in": "path",
+            "description": "Name of Lake",
+            "required": true,
+            "type": "string",
+            "minimum": 1,
+            "default": "geneva",
+            "enum": [
+              "geneva"
+            ]
+          },
+          {
+            "name": "datetime",
+            "in": "path",
+            "description": "Unix time in milliseconds",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "x",
+            "in": "path",
+            "description": "X coordinate of point in CH1903 / LV03",
+            "required": true,
+            "type": "number"
+          },
+          {
+            "name": "y",
+            "in": "path",
+            "description": "Y coordinate of point in CH1903 / LV03",
+            "required": true,
+            "type": "number"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/depthprofile/{lake}/{datetime}/{x}/{y}": {
+      "get": {
+        "tags": [
+          "JSON"
+        ],
+        "summary": "Get depth profile at given point",
+        "description": "Download a depth profile for a given lake, datetime and location. Data is returned as a JSON object where: \n x: Water temperature in degC \n x1: Water velocity magnitude in m/s \n y: Depth in m",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "lake",
+            "in": "path",
+            "description": "Name of Lake",
+            "required": true,
+            "type": "string",
+            "minimum": 1,
+            "default": "geneva",
+            "enum": [
+              "geneva"
+            ]
+          },
+          {
+            "name": "datetime",
+            "in": "path",
+            "description": "Unix time in milliseconds",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "x",
+            "in": "path",
+            "description": "X coordinate of point in CH1903 / LV03",
+            "required": true,
+            "type": "number"
+          },
+          {
+            "name": "y",
+            "in": "path",
+            "description": "Y coordinate of point in CH1903 / LV03",
+            "required": true,
+            "type": "number"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/nc/{lake}/{year}/{week}": {
+      "get": {
+        "tags": [
+          "NetCDF"
+        ],
+        "summary": "Download one week of simulation data in NetCDF format",
+        "description": "",
+        "produces": [
+          "application/file"
+        ],
+        "parameters": [
+          {
+            "name": "lake",
+            "in": "path",
+            "description": "Name of Lake",
+            "required": true,
+            "type": "string",
+            "minimum": 1,
+            "default": "geneva",
+            "enum": [
+              "geneva"
+            ]
+          },
+          {
+            "name": "year",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "week",
+            "in": "path",
+            "description": "ISO week number",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    }
+  }
+}

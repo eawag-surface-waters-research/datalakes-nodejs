@@ -1,0 +1,40 @@
+{
+  "name": "datalakes",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "engines": {
+    "node": "v8.10.0"
+  },
+  "nodemonConfig": {
+    "ignore": [
+      "/data/*",
+      "/git/*",
+      "/files/*"
+    ]
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "archiver": "^4.0.2",
+    "aws-sdk": "^2.658.0",
+    "axios": "^0.21.1",
+    "compression": "^1.7.4",
+    "csvtojson": "^2.0.10",
+    "express": "^4.17.1",
+    "express-promise-router": "^3.0.3",
+    "express-zip": "^3.0.0",
+    "helmet": "^3.21.2",
+    "multer": "^1.4.2",
+    "netcdf4": "^0.4.1",
+    "nodemailer": "^6.3.1",
+    "oauth": "^0.9.12",
+    "pg": "^7.14.0",
+    "pg-format": "^1.0.4",
+    "swagger-jsdoc": "^4.0.0"
+  }
+}

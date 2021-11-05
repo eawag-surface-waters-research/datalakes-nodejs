@@ -1,0 +1,120 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "Datalakes Remote Sensing API"
+  },
+  "basePath": "/externaldata/remotesensing",
+  "host": "api.datalakes-eawag.ch",
+  "tags": [
+    {
+      "name": "Files",
+      "description": "Find remote sensing files"
+    },
+    {
+      "name": "JSON",
+      "description": "Layer in JSON format"
+    },
+    {
+      "name": "NetCDF",
+      "description": "Layer in NetCDF format"
+    }
+  ],
+  "paths": {
+    "/datasets": {
+      "get": {
+        "tags": [
+          "Files"
+        ],
+        "summary": "Get satellite data layers",
+        "description": "Access list of satellite data layers",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/files/{dataset_id}": {
+      "get": {
+        "tags": [
+          "Files"
+        ],
+        "summary": "Get list of available files",
+        "description": "Get a list of the available files for a given dataset, this ID is the last number at the end of the URL",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "dataset_id",
+            "in": "path",
+            "description": "Dataset id",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/json/{file_id}": {
+      "get": {
+        "tags": [
+          "JSON"
+        ],
+        "summary": "Download JSON of valid pixels for the given product",
+        "description": "Download JSON of valid pixels for the given product",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "file_id",
+            "in": "path",
+            "description": "File id",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/nc/{file_id}": {
+      "get": {
+        "tags": [
+          "NetCDF"
+        ],
+        "summary": "Download NetCDF for the given product",
+        "description": "Download NetCDF for the given product",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "file_id",
+            "in": "path",
+            "description": "File id",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    }
+  }
+}

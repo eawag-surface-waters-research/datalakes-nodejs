@@ -1,0 +1,13 @@
+.DS_Store
+node_modules/
+logfile.log
+notebooks
+git/*
+!git/.gitkeep
+metadata/*
+!metadata/.gitkeep
+files/*
+!files/.gitkeep
+.npmrc
+config.js
+data/datalakes
