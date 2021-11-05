@@ -11,4 +11,5 @@ module.exports = {
   AWS_accessKeyId: "", // AWS S3 Access Key ID
   AWS_secretAccessKey: "", // AWS S3 Secret Access Key
   AWS_region: "", // AWS S3 region
+  default_port: 4000 // Default port
 };

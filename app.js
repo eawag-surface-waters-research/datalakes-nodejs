@@ -1,5 +1,6 @@
 const express = require("express");
 const swaggerJsDoc = require("swagger-jsdoc");
+const creds = require("./config");
 
 module.exports = () => {
   const app = express();
@@ -82,6 +83,6 @@ module.exports = () => {
   });
 
   // Load Server
-  const port = process.env.PORT || 5000;
+  const port = process.env.PORT || creds.default_port;
   app.listen(port, () => console.log(`Listening on port ${port}...'`));
 };
