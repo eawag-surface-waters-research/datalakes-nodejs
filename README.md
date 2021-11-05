@@ -64,3 +64,8 @@ crontab -e
 0 1 * * * curl -s http://api.datalakes-eawag.ch/externaldata/update/simstrat > /dev/null
 0 1 * * * curl -s http://api.datalakes-eawag.ch/externaldata/update/meteolakes > /dev/null
 ```
+
+## Database set up
+
+The PostgreSQL database schema is available [here](https://github.com/Datalakes-Eawag/datalakes-nodejs/blob/master/db/datalakes_schema.sql). This can be used to recreate the datalakes database and be populated with custom data. The database is vital for the functioning of the application. 
+
