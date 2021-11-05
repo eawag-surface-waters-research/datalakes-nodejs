@@ -24,7 +24,6 @@ sudo apt-get install curl
 curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -
 sudo apt-get install -y nodejs
 sudo apt-get install gcc g++ make
-//sudo chown -R 1000:1000 "/home/ubuntu/.npm"
 npm install -g node-gyp
 ```
 
@@ -43,7 +42,7 @@ cd datalakes-nodejs
 sudo npm install
 ```
 
-### Setup ip PM2 
+### Setup PM2 
 (Advanced process manager for production Node.js applications)
 ```console
 npm install -g pm2
