@@ -16,10 +16,12 @@ const datalakesmodel = require("./datalakesmodel");
 const netcdf = require("./netcdf");
 const monitor = require("./monitor");
 const status = require("./status");
+const repositories = require("./repositories");
 
 module.exports = (app) => {
   app.use("/selectiontables", selectiontables);
   app.use("/datasets", datasets);
+  app.use("/repositories", repositories);
   app.use("/datasetparameters", datasetparameters);
   app.use("/files", files);
   app.use("/contact", contact);
