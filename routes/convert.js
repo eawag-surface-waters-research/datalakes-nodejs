@@ -49,7 +49,7 @@ matlabToUnix = (date) => {
 parseTime = (arr, id) => {
   if (id === 1) {
     // If Matlab time
-    if (arr[0] < 31536000) {
+    if (0 < arr[0] && arr[0] < 31536000) {
       arr = arr.map((a) => matlabToUnix(a));
     }
     return arr;
