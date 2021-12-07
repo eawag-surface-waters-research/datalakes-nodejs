@@ -21,7 +21,7 @@ const {
  */
 router.get("/", async (req, res, next) => {
   var { rows } = await db.query(
-    "SELECT accompanyingdata, citation, datasource, datasourcelink, description, downloads, embargo, fileconnect, id, lakes_id, latitude, licenses_id, liveconnect, longitude, mapplot, mapplotfunction, maxdatetime, maxdepth, mindatetime, mindepth, organisations_id, origin, persons_id, plotproperties, prefile, prescript, projects_id, renku, repositories_id, title, monitor FROM datasets WHERE title IS NOT NULL AND dataportal IS NOT NULL"
+    "SELECT accompanyingdata, citation, datasource, datasourcelink, description, downloads, embargo, fileconnect, id, lakes_id, latitude, licenses_id, liveconnect, longitude, mapplot, mapplotfunction, maxdatetime, maxdepth, mindatetime, mindepth, organisations_id, origin, persons_id, plotproperties, prefile, prescript, projects_id, renku, repositories_id, title, monitor, internal FROM datasets WHERE title IS NOT NULL AND dataportal IS NOT NULL"
   );
   res.status(200).send(rows);
 });
