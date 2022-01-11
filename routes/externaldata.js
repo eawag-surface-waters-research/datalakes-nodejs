@@ -540,7 +540,7 @@ router.get("/sync/simstrat", async (req, res, next) => {
 
 var remotesensing = [
   { id: 19, name: "SECCHIDEPTH_Z443", url: "Z443" },
-  { id: 20, name: "MDN_chla", url: "chla" },
+  { id: 20, name: "OC3_chla", url: "chla" },
   {
     id: 21,
     name: "POLYMER_tsm_binding754",
