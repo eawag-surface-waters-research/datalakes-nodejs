@@ -537,9 +537,8 @@ router.get("/sync/simstrat", async (req, res, next) => {
 });
 
 // Remote Sensing
-
 var remotesensing = [
-  { id: 19, name: "SECCHIDEPTH_Z443", url: "Z443" },
+  { id: 19, name: "SECCHIDEPTH_Zsd_lee", url: "Zsd_lee" },
   { id: 20, name: "OC3_chla", url: "chla" },
   {
     id: 21,
