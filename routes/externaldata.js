@@ -551,7 +551,7 @@ var remotesensing = [
     url: "pp",
   },
   { id: 24, name: "WHITING_bgr_whit", url: "bgr_whit" },
-  { id: 24, name: "WHITING_area_bgr", url: "area_bgr" },
+  { id: 25, name: "WHITING_area_bgr", url: "area_bgr" },
 ];
 
 parseDatetime = (name) => {
