@@ -70,11 +70,17 @@ module.exports = () => {
     res.send(swaggerDocs);
   });
 
+  app.get("", function (req, res) {
+    res.send(
+      "Welcome to the Datalakes API please see https://www.datalakes-eawag.ch/api for documentation on how to access data through the API."
+    );
+  });
+
   // Error Handling
   app.use(function (err, req, res, next) {
     if (!err.statusCode) err.statusCode = 500;
     if (!err.description) err.description = "";
-    console.log(err)
+    console.log(err);
     res.status(err.statusCode).send({
       code: err.statusCode,
       message: err.message,
