@@ -68,7 +68,7 @@ router.get("/:id", async (req, res, next) => {
   var repos_id = repositories[0].id;
   gitCommand =
     `cd git/${repos_id}/${name} ` +
-    `&& git lfs install && git pull && sudo git lfs prune`;
+    `&& git lfs install && git stash && git pull && sudo git lfs prune`;
   var log = [];
   const child = spawn(gitCommand, {
     shell: true,
