@@ -25,7 +25,7 @@ router.get("/scripts/:id", async (req, res, next) => {
 
   var accompanyingdata = parseSQLarray(rows[0].accompanyingdata);
   accompanyingdata = accompanyingdata.filter((ad) =>
-    ["py", "r", "js", "md"].includes(ad.split(".")[1].toLowerCase())
+    ["py", "r", "js", "md"].includes(ad.split(".")[1])
   );
 
   var out = [];
