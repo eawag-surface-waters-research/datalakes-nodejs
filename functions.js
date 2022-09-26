@@ -7,13 +7,13 @@ const readDirAsync = promisify(fs.readdir);
 const statAsync = promisify(fs.stat);
 const { spawn } = require("child_process");
 
-logger = (method, path, text, indent=0) => {
-  var space = ""
-  for (let i = 0; i < indent.length; i++){
-    space += "   "
+logger = (method, path, text, indent = 0) => {
+  var space = "";
+  for (let i = 0; i < indent.length; i++) {
+    space += "   ";
   }
-  console.log(["(", method, ":", path, ")", space, text].join(""))
-}
+  console.log(["(", method, ":", path, ")", space, text].join(""));
+};
 
 walk = async (dir, fileList = [], folderList = []) => {
   const files = await readDirAsync(dir);
@@ -288,4 +288,5 @@ module.exports = {
   mirror: mirror,
   getDateOfWeek: getDateOfWeek,
   customRound: customRound,
+  logger: logger,
 };
