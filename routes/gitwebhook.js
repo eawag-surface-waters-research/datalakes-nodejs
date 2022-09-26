@@ -7,7 +7,7 @@ const { promisify } = require("util");
 const unlinkAsync = promisify(fs.unlink);
 const { spawn } = require("child_process");
 const db = require("../db");
-const { checkObject, error, parseUrl } = require("../functions");
+const { error, parseUrl, logger } = require("../functions");
 const creds = require("../config");
 
 router.post("/", async (req, res, next) => {
@@ -21,7 +21,7 @@ router.post("/", async (req, res, next) => {
         var commits = body.commits;
         commits.sort(compareTimeAscending);
       } catch (e) {
-        console.log(e)
+        console.log(e);
         return next(error(400, "Malformed webhook."));
       }
     } else {
@@ -31,9 +31,7 @@ router.post("/", async (req, res, next) => {
     return next(error(400, "Request headers not valid."));
   }
 
-  var {
-    rows: repositories,
-  } = await db.query(
+  var { rows: repositories } = await db.query(
     "SELECT * FROM repositories WHERE ssh = $1 AND branch = $2",
     [ssh, branch]
   );
@@ -45,10 +43,13 @@ router.post("/", async (req, res, next) => {
   res.status(204).send();
 
   // Update Repo
-  var temp = repositories[0].ssh.split("/")
-  var name = temp[temp.length - 1].split(".")[0]
+  var temp = repositories[0].ssh.split("/");
+  var name = temp[temp.length - 1].split(".")[0];
+  logger("post", "gitwebhook", "Processing webhook for repo: " + name);
   var repos_id = repositories[0].id;
-  gitCommand = `cd git/${repos_id}/${name} ` + `&& git lfs install && git pull && sudo git lfs prune`;
+  gitCommand =
+    `cd git/${repos_id}/${name} ` +
+    `&& git lfs install && git pull && sudo git lfs prune`;
   var log = [];
   const child = spawn(gitCommand, {
     shell: true,
@@ -61,9 +62,7 @@ router.post("/", async (req, res, next) => {
   });
   child.on("exit", async (data) => {
     if (data === 0) {
-      var {
-        rows: datasets,
-      } = await db.query(
+      var { rows: datasets } = await db.query(
         "SELECT * FROM datasets WHERE liveconnect = 'true' AND repositories_id = $1",
         [repos_id]
       );
@@ -73,20 +72,23 @@ router.post("/", async (req, res, next) => {
         return;
       }
 
+      logger(
+        "post",
+        "gitwebhook",
+        "Extracting data from commits",
+        (indent = 1)
+      );
       var dataset, i;
       for (dataset of datasets) {
         try {
           // Get current files
-          var {
-            rows: files,
-          } = await db.query("SELECT * FROM files WHERE datasets_id = $1", [
-            dataset.id,
-          ]);
+          var { rows: files } = await db.query(
+            "SELECT * FROM files WHERE datasets_id = $1",
+            [dataset.id]
+          );
 
           // Get dataset parameters
-          var {
-            rows: parameters,
-          } = await db.query(
+          var { rows: parameters } = await db.query(
             "SELECT * FROM datasetparameters WHERE datasets_id = $1",
             [dataset.id]
           );
@@ -122,16 +124,19 @@ router.post("/", async (req, res, next) => {
             }
           }
 
-          // Check fully syncronised
+          logger(
+            "post",
+            "gitwebhook",
+            "Check fully syncronised and add orphan files",
+            (indent = 1)
+          );
           var { dir } = parseUrl(dataset.datasourcelink);
           var localFileList = fs.readdirSync("git/" + repos_id + "/" + dir);
           localFileList = localFileList.filter((f) => f.split(".")[1] === "nc");
           localFileList = localFileList.map(
             (lfl) => "git/" + repos_id + "/" + dir + "/" + lfl
           );
-          var {
-            rows: globalFileList,
-          } = await db.query(
+          var { rows: globalFileList } = await db.query(
             "SELECT * FROM files WHERE datasets_id = $1 AND filetype = $2",
             [dataset.id, "nc"]
           );
@@ -143,7 +148,6 @@ router.post("/", async (req, res, next) => {
               (gfl) => gfl.filelink === localFileList[k]
             );
             if (!globalNames.includes(localFileList[k])) {
-              console.log("Add: " + localFileList[k]);
               var filetype = localFileList[k].split(".").pop();
               addFile(
                 dataset.id,
@@ -163,7 +167,6 @@ router.post("/", async (req, res, next) => {
 
           for (var l = 0; l < globalNames.length; l++) {
             if (!localFileList.includes(globalNames[l])) {
-              console.log("Remove: " + globalNames[l]);
               removeFile(globalFileList[k]);
             }
           }
@@ -173,12 +176,13 @@ router.post("/", async (req, res, next) => {
       }
     } else {
       // Do something about broken repo
+      logger("post", "gitwebhook", "Connection to repository broken");
       var repo_id = repositories[0].id;
       gitCommand = `cd git/${repo_id}/${name} ` + `&& git stash && git pull`;
       const child = spawn(gitCommand, {
         shell: true,
       });
-      console.error(log)
+      console.error(log);
       console.error("Repository broken");
     }
   });
@@ -195,9 +199,8 @@ inFolder = (link, folder) => {
 };
 
 addFile = async (datasets_id, filelink, filetype, parameters, fileconnect) => {
-  var {
-    rows: newfiles,
-  } = await db.query(
+  logger("post", "gitwebhook", "Adding file: " + filelink, (indent = 2));
+  var { rows: newfiles } = await db.query(
     "INSERT INTO files (datasets_id, filelink, filetype) VALUES ($1,$2,$3) RETURNING *",
     [datasets_id, filelink, filetype]
   );
@@ -218,6 +221,7 @@ added = async (added, dataset, files, parameters, name, repo_id) => {
   var filelink, filedetails, addedFile;
   for (var j = 0; j < added.length; j++) {
     addedFile = name + "/" + added[j];
+
     filelink = `git/${repo_id}/${addedFile}`;
     filedetails = files.filter((file) => file.filelink === filelink);
     var arr = addedFile.split(".");
@@ -237,6 +241,7 @@ modified = async (modified, dataset, files, parameters, name, repo_id) => {
   for (var j = 0; j < modified.length; j++) {
     modifiedFile = name + "/" + modified[j];
     link = `git/${repo_id}/${modifiedFile}`;
+    logger("post", "gitwebhook", "Modifying file: " + link, (indent = 2));
     filedetails = files.filter((file) => file.filelink === link);
     if (filedetails.length === 1) {
       jsonfile = files.find((file) => file.filelineage === filedetails[0].id);
@@ -244,7 +249,8 @@ modified = async (modified, dataset, files, parameters, name, repo_id) => {
         // Delete json file from database
         await db.query("DELETE FROM files WHERE id = $1", [jsonfile.id]);
         // Delete json file
-        await unlinkAsync(jsonfile.filelink);
+        if (fs.existsSync(jsonfile.filelink))
+          await unlinkAsync(jsonfile.filelink);
       }
 
       // Create new file
@@ -267,11 +273,12 @@ modified = async (modified, dataset, files, parameters, name, repo_id) => {
 
 removeFile = async (file) => {
   if (file) {
+    logger("post", "gitwebhook", "Removing file: " + file, (indent = 2));
     // Delete file from database
     await db.query("DELETE FROM files WHERE id = $1", [file.id]);
 
     // Remove from local
-    await unlinkAsync(file.filelink);
+    if (fs.existsSync(file.filelink)) await unlinkAsync(file.filelink);
   }
   if (file.filetype === "json") {
     // Delete nc file from database
