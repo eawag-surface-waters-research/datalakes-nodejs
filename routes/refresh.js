@@ -8,8 +8,8 @@ const db = require("../db");
 const { error, parseUrl, logger } = require("../functions");
 const creds = require("../config");
 
-async function addFile(oldid, parameters, fileconnect) {
-  logger("get", "refresh", "Adding file: " + oldid, (indent = 2));
+async function addFile(oldid, filelink, parameters, fileconnect) {
+  logger("get", "refresh", "Adding file: " + filelink, (indent = 2));
   var url = creds.apiUrl + "/convert";
   var body = {
     id: oldid,
@@ -96,7 +96,7 @@ router.get("/:id", async (req, res, next) => {
       var files = fs.readdirSync(filedir);
       for (const file of files) {
         if (fs.existsSync(`${filedir}/${file}`))
-          fs.unlink(`${filedir}/${file}`);
+          fs.unlinksync(`${filedir}/${file}`);
       }
 
       logger(
@@ -128,9 +128,9 @@ router.get("/:id", async (req, res, next) => {
       });
 
       for (ncfile of ncfiles) {
-        await addFile(ncfile.id, parameters, dataset.fileconnect);
+        await addFile(ncfile.id, ncfile.filelink, parameters, dataset.fileconnect);
       }
-      logger("get", "refresh", "Successfully refreshed dataset.", (indent = 1));
+      logger("get", "refresh", "Successfully refreshed dataset.");
     } else {
       // Do something about broken repo
       gitCommand = `cd git/${repos_id}/${name} ` + `&& git stash && git pull`;
