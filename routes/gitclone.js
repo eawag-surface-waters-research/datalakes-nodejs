@@ -52,7 +52,6 @@ router.get("/status/:id", async (req, res, next) => {
   if (rows.length < 1) {
     return next(error(404, "Dataset not found in database"));
   }
-  logger("post", "gitclone", rows[0], indent=2);
   res.status(200).send(rows[0]);
 });
 
@@ -153,7 +152,7 @@ router.post("/", async (req, res, next) => {
       clonestatus_id,
     ]);
     log.push(`stdout: ${data}`);
-    console.log(`stdout: ${data}`);
+    logger("post", "gitclone", `stdout: ${data}`, indent=2);
   });
   child.stderr.on("data", (data) => {
     db.query("UPDATE clonestatus SET message = $1 WHERE id = $2", [
