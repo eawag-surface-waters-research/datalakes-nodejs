@@ -174,7 +174,7 @@ router.post("/", async (req, res, next) => {
           console.error(e);
         }
       }
-      logger("post", "gitwebhook", "Completed rocessing webhook for repo: " + name);
+      logger("post", "gitwebhook", "Completed processing webhook for repo: " + name);
     } else {
       // Do something about broken repo
       logger("post", "gitwebhook", "Connection to repository broken");

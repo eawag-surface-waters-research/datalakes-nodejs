@@ -8,7 +8,7 @@ const statAsync = promisify(fs.stat);
 const { spawn } = require("child_process");
 
 logger = (method, path, text, indent = 0) => {
-  var space = "";
+  var space = " ";
   for (let i = 0; i < indent; i++) {
     space += "   ";
   }

@@ -5,7 +5,7 @@ const format = require("pg-format");
 const fs = require("fs");
 const { spawn } = require("child_process");
 const db = require("../db");
-const { checkObject, error } = require("../functions");
+const { checkObject, error, logging } = require("../functions");
 
 function getFiles(dir, files_) {
   files_ = files_ || [];
@@ -52,6 +52,7 @@ router.get("/status/:id", async (req, res, next) => {
   if (rows.length < 1) {
     return next(error(404, "Dataset not found in database"));
   }
+  logger("post", "gitclone", rows[0], indent=2);
   res.status(200).send(rows[0]);
 });
 
@@ -86,6 +87,8 @@ router.post("/", async (req, res, next) => {
     return next(error(400, "Malformed request"));
   }
 
+  logger("post", "gitclone", "Processing gitclone for repo: " + ssh);
+
   // Check if repository in database
   var repo_id;
   var {
@@ -116,11 +119,13 @@ router.post("/", async (req, res, next) => {
   // Load git command
   var gitCommand;
   if (mode === "new") {
+    logger("post", "gitclone", "Cloning new repository", indent=1);
     gitCommand =
       `mkdir git/${repo_id} ` +
       `&& cd git/${repo_id} ` +
       `&& git clone --depth 1 ${ssh} -b ${branch}`;
   } else {
+    logger("post", "gitclone", "Pulling existing repository", indent=1);
     gitCommand = `cd git/${repo_id}/${repo_name} && git stash && git pull`;
   }
 
@@ -170,6 +175,7 @@ router.post("/", async (req, res, next) => {
   child.on("exit", async (data) => {
     try {
       if (data === 0) {
+        logger("post", "gitclone", "Successfully cloned/ updated.", indent=1);
         // Discover files and filter for only NetCDF files
         var files = fs.readdirSync(`git/${repo_id}/${dir}`);
         files = files.filter((f) => f.split(".")[1] === "nc");

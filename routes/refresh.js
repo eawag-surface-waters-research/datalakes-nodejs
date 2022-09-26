@@ -5,10 +5,11 @@ const format = require("pg-format");
 const fs = require("fs");
 const { spawn } = require("child_process");
 const db = require("../db");
-const { error, parseUrl } = require("../functions");
+const { error, parseUrl, logger } = require("../functions");
 const creds = require("../config");
 
 async function addFile(oldid, parameters, fileconnect) {
+  logger("get", "refresh", "Adding file: " + oldid, (indent = 2));
   var url = creds.apiUrl + "/convert";
   var body = {
     id: oldid,
@@ -39,6 +40,9 @@ router.get("/:id", async (req, res, next) => {
   }
 
   var dataset = rows[0];
+
+  logger("get", "refresh", "Refreshing dataset: " + id + " (" + dataset.title + ")");
+  res.status(204).send("Refreshing dataset: " + id + " (" + dataset.title + ")");
 
   // Get dataset parameters
   var {
@@ -81,17 +85,18 @@ router.get("/:id", async (req, res, next) => {
   });
   child.on("exit", async (data) => {
     if (data === 0) {
-      // Remove files in database
+      logger("get", "refresh", "Successfully updated repo.", indent=1);
+
       await db.query("DELETE FROM files WHERE datasets_id = $1", [id]);
 
-      // Remove real files from folder
+      logger("get", "refresh", "Removing exsting JSON files", indent=1);
       var filedir = `files/${id}`;
       var files = fs.readdirSync(filedir)
       for (const file of files) {
         fs.unlink(`${filedir}/${file}`);
       }
 
-      // Add create new files and add to database
+      logger("get", "refresh", "Create new files and add to database", indent=1);
       var { ssh, dir, branch, file } = parseUrl(dataset.datasourcelink);
       if (dataset.fileconnect === "time") {
         var newfiles = fs.readdirSync(`git/${repos_id}/${dir}`);
@@ -117,7 +122,8 @@ router.get("/:id", async (req, res, next) => {
       for (ncfile of ncfiles) {
         await addFile(ncfile.id, parameters, dataset.fileconnect);
       }
-      res.status(201).send("Refreshed dataset.");
+      logger("get", "refresh", "Successfully refreshed dataset.", indent=1);
+      
     } else {
       // Do something about broken repo
       gitCommand = `cd git/${repos_id}/${name} ` + `&& git stash && git pull`;
