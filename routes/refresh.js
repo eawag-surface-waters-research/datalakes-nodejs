@@ -96,7 +96,7 @@ router.get("/:id", async (req, res, next) => {
       var files = fs.readdirSync(filedir);
       for (const file of files) {
         if (fs.existsSync(`${filedir}/${file}`))
-          fs.unlinksync(`${filedir}/${file}`);
+          fs.unlinkSync(`${filedir}/${file}`);
       }
 
       logger(
