@@ -21,16 +21,14 @@ async function addFile(oldid, parameters, fileconnect) {
   } catch (e) {
     console.error(e);
   }
-};
+}
 
 router.get("/:id", async (req, res, next) => {
   var id = req.params.id;
   if (!isInt(id)) {
     return next(error(400, "ID must be an integer"));
   }
-  var {
-    rows,
-  } = await db.query(
+  var { rows } = await db.query(
     "SELECT * FROM datasets WHERE id = $1 AND datasource = $2",
     [id, "internal"]
   );
@@ -41,15 +39,20 @@ router.get("/:id", async (req, res, next) => {
 
   var dataset = rows[0];
 
-  logger("get", "refresh", "Refreshing dataset: " + id + " (" + dataset.title + ")");
-  res.status(204).send("Refreshing dataset: " + id + " (" + dataset.title + ")");
+  logger(
+    "get",
+    "refresh",
+    "Refreshing dataset: " + id + " (" + dataset.title + ")"
+  );
+  res
+    .status(201)
+    .send("Refreshing dataset: " + id + " (" + dataset.title + ")");
 
   // Get dataset parameters
-  var {
-    rows: parameters,
-  } = await db.query("SELECT * FROM datasetparameters WHERE datasets_id = $1", [
-    id,
-  ]);
+  var { rows: parameters } = await db.query(
+    "SELECT * FROM datasetparameters WHERE datasets_id = $1",
+    [id]
+  );
 
   // Add info to parameters
   for (i = 0; i < parameters.length; i++) {
@@ -57,11 +60,10 @@ router.get("/:id", async (req, res, next) => {
     parameters[i]["included"] = true;
   }
 
-  var {
-    rows: repositories,
-  } = await db.query("SELECT * FROM repositories WHERE id = $1", [
-    dataset.repositories_id,
-  ]);
+  var { rows: repositories } = await db.query(
+    "SELECT * FROM repositories WHERE id = $1",
+    [dataset.repositories_id]
+  );
 
   if (repositories.length !== 1) {
     return next(error(404, "Repository not found in database"));
@@ -85,18 +87,24 @@ router.get("/:id", async (req, res, next) => {
   });
   child.on("exit", async (data) => {
     if (data === 0) {
-      logger("get", "refresh", "Successfully updated repo.", indent=1);
+      logger("get", "refresh", "Successfully updated repo.", (indent = 1));
 
       await db.query("DELETE FROM files WHERE datasets_id = $1", [id]);
 
-      logger("get", "refresh", "Removing exsting JSON files", indent=1);
+      logger("get", "refresh", "Removing exsting JSON files", (indent = 1));
       var filedir = `files/${id}`;
-      var files = fs.readdirSync(filedir)
+      var files = fs.readdirSync(filedir);
       for (const file of files) {
-        fs.unlink(`${filedir}/${file}`);
+        if (fs.existsSync(`${filedir}/${file}`))
+          fs.unlink(`${filedir}/${file}`);
       }
 
-      logger("get", "refresh", "Create new files and add to database", indent=1);
+      logger(
+        "get",
+        "refresh",
+        "Create new files and add to database",
+        (indent = 1)
+      );
       var { ssh, dir, branch, file } = parseUrl(dataset.datasourcelink);
       if (dataset.fileconnect === "time") {
         var newfiles = fs.readdirSync(`git/${repos_id}/${dir}`);
@@ -122,8 +130,7 @@ router.get("/:id", async (req, res, next) => {
       for (ncfile of ncfiles) {
         await addFile(ncfile.id, parameters, dataset.fileconnect);
       }
-      logger("get", "refresh", "Successfully refreshed dataset.", indent=1);
-      
+      logger("get", "refresh", "Successfully refreshed dataset.", (indent = 1));
     } else {
       // Do something about broken repo
       gitCommand = `cd git/${repos_id}/${name} ` + `&& git stash && git pull`;
