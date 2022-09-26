@@ -174,6 +174,7 @@ router.post("/", async (req, res, next) => {
           console.error(e);
         }
       }
+      logger("post", "gitwebhook", "Completed rocessing webhook for repo: " + name);
     } else {
       // Do something about broken repo
       logger("post", "gitwebhook", "Connection to repository broken");
@@ -273,7 +274,7 @@ modified = async (modified, dataset, files, parameters, name, repo_id) => {
 
 removeFile = async (file) => {
   if (file) {
-    logger("post", "gitwebhook", "Removing file: " + file, (indent = 2));
+    logger("post", "gitwebhook", "Removing file: " + file.filelink, (indent = 2));
     // Delete file from database
     await db.query("DELETE FROM files WHERE id = $1", [file.id]);
 
