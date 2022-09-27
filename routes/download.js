@@ -501,25 +501,36 @@ router.post("/", async (req, res, next) => {
     }
   }
 
+  var name = dataset.title.replace(" ", "_");
 
-  var archive = Archiver('zip');
+  res.setHeader("Content-Type", "application/zip");
+  res.setHeader(
+    "Content-Disposition",
+    'attachment; filename="' + name + '.zip"'
+  );
 
-  archive.on('error', function(err) {
-    res.status(500).send({error: err.message});
+  var archive = Archiver("zip");
+
+  archive.on("error", function (err) {
+    res.status(500).send({ error: err.message });
   });
 
-  archive.on('end', function() {
+  archive.on("end", function () {
     logger(
       "post",
       "download",
-      `Archive wrote ${archive.pointer()} bytes`
+      `Archive wrote ${Math.round(archive.pointer() / 1000000)}mb`,
+      (indent = 1)
     );
+    logger("post", "download", "Completed sending zip file");
   });
 
-  res.attachment(dataset.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()+".zip");
+  res.attachment(
+    dataset.title.replace(/[^a-z0-9]/gi, "_").toLowerCase() + ".zip"
+  );
   archive.pipe(res);
-  
-  logger("post", "download", "Adding readme to bundle", indent=1);
+
+  logger("post", "download", "Adding readme to bundle", (indent = 1));
   try {
     let repo = fs.readdirSync(`git/${dataset.repositories_id}`);
     for (var f = 0; f < repo.length; f++) {
@@ -532,14 +543,19 @@ router.post("/", async (req, res, next) => {
     console.error(e);
   }
 
-  logger("post", "download", "Adding parse information to bundle", indent=1);
+  logger(
+    "post",
+    "download",
+    "Adding parse information to bundle",
+    (indent = 1)
+  );
   var infofilename = `metadata/${dataset.id}.txt`;
   if (!fs.existsSync(infofilename)) {
     await createParseInformationFile(dataset.id, infofilename);
   }
-  archive.file( infofilename, { name: "parseInformation.txt" });
+  archive.file(infofilename, { name: "parseInformation.txt" });
 
-  logger("post", "download", "Adding files to bundle", indent=1);
+  logger("post", "download", "Adding files to bundle", (indent = 1));
   var path, arr, name;
   for (var i = 0; i < files.length; i++) {
     path = files[i].filelink;
@@ -552,10 +568,9 @@ router.post("/", async (req, res, next) => {
         files[i].id
       }.json`;
     }
-    archive.file( path, { name: name });
+    archive.file(path, { name: name });
   }
   archive.finalize();
-  logger("post", "download", "Completed sending zip file");
 });
 
 async function createParseInformationFile(id, filename) {
