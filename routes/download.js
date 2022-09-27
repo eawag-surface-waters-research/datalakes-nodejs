@@ -502,7 +502,7 @@ router.post("/", async (req, res, next) => {
   }
 
 
-  var archive = archiver('zip');
+  var archive = Archiver('zip');
 
   archive.on('error', function(err) {
     res.status(500).send({error: err.message});
