@@ -6,7 +6,7 @@ const fs = require("fs");
 const { promisify } = require("util");
 const readFileAsync = promisify(fs.readFile);
 const db = require("../db");
-const { isInt, error } = require("../functions");
+const { isInt, error, logger } = require("../functions");
 const zip = require("express-zip");
 const creds = require("../config");
 const path = require("path");
@@ -57,9 +57,10 @@ router.get("/csv/:fileid/:password?", async (req, res, next) => {
   var file = files[0];
 
   if (file.filetype !== "json") {
-    var {
-      rows: jsonfiles,
-    } = await db.query("SELECT * FROM files WHERE filelineage = $1", [fileid]);
+    var { rows: jsonfiles } = await db.query(
+      "SELECT * FROM files WHERE filelineage = $1",
+      [fileid]
+    );
     if (jsonfiles.length < 1) {
       return next(
         error(404, "CSV convertion is only possible for JSON files not NetCDF.")
@@ -72,11 +73,10 @@ router.get("/csv/:fileid/:password?", async (req, res, next) => {
   db.query("UPDATE datasets SET downloads = downloads + 1 WHERE id = $1", [
     file.datasets_id,
   ]);
-  var {
-    rows: datasets,
-  } = await db.query("SELECT * FROM datasets WHERE id = $1", [
-    file.datasets_id,
-  ]);
+  var { rows: datasets } = await db.query(
+    "SELECT * FROM datasets WHERE id = $1",
+    [file.datasets_id]
+  );
   if (datasets.length < 1) {
     return next(error(404, "Error downloading file, dataset not found"));
   }
@@ -168,11 +168,10 @@ router.get("/:fileid/:password?", async (req, res, next) => {
   db.query("UPDATE datasets SET downloads = downloads + 1 WHERE id = $1", [
     file.datasets_id,
   ]);
-  var {
-    rows: datasets,
-  } = await db.query("SELECT * FROM datasets WHERE id = $1", [
-    file.datasets_id,
-  ]);
+  var { rows: datasets } = await db.query(
+    "SELECT * FROM datasets WHERE id = $1",
+    [file.datasets_id]
+  );
   if (datasets.length < 1) {
     return next(error(404, "Error downloading file, dataset not found"));
   }
@@ -195,11 +194,10 @@ router.get("/:fileid/:password?", async (req, res, next) => {
       let embargoDate =
         new Date().getTime() - dataset.embargo * 30.4167 * 24 * 60 * 60 * 1000;
       if (file.filetype === "nc") {
-        var {
-          rows,
-        } = await db.query("SELECT * FROM files WHERE filelineage = $1", [
-          file.id,
-        ]);
+        var { rows } = await db.query(
+          "SELECT * FROM files WHERE filelineage = $1",
+          [file.id]
+        );
         if (rows.length < 1) {
           return next(
             error(404, "Error downloading file, can't find datetime")
@@ -264,9 +262,10 @@ router.post("/csv/", async (req, res, next) => {
     return next(error(400, "Must be a list of integers"));
   }
 
-  var {
-    rows: files,
-  } = await db.query("SELECT * FROM files WHERE id = ANY ($1)", [ids]);
+  var { rows: files } = await db.query(
+    "SELECT * FROM files WHERE id = ANY ($1)",
+    [ids]
+  );
 
   var datasets_ids = [...new Set(files.map((f) => f.datasets_id))];
 
@@ -276,11 +275,10 @@ router.post("/csv/", async (req, res, next) => {
 
   for (var i = 0; i < files.length; i++) {
     if (files[i].filetype !== "json") {
-      let {
-        rows: jsonfiles,
-      } = await db.query("SELECT * FROM files WHERE filelineage = $1", [
-        files[i].id,
-      ]);
+      let { rows: jsonfiles } = await db.query(
+        "SELECT * FROM files WHERE filelineage = $1",
+        [files[i].id]
+      );
       if (jsonfiles.length < 1) {
         return next(
           error(
@@ -294,9 +292,10 @@ router.post("/csv/", async (req, res, next) => {
     }
   }
 
-  var {
-    rows: datasets,
-  } = await db.query("SELECT * FROM datasets WHERE id = $1", [datasets_ids[0]]);
+  var { rows: datasets } = await db.query(
+    "SELECT * FROM datasets WHERE id = $1",
+    [datasets_ids[0]]
+  );
 
   if (datasets.length < 1) {
     return next(error(404, "Error downloading file, dataset not found"));
@@ -425,9 +424,10 @@ router.post("/", async (req, res, next) => {
     return next(error(400, "Must be a list of integers"));
   }
 
-  var {
-    rows: files,
-  } = await db.query("SELECT * FROM files WHERE id = ANY ($1)", [ids]);
+  var { rows: files } = await db.query(
+    "SELECT * FROM files WHERE id = ANY ($1)",
+    [ids]
+  );
 
   var datasets_ids = [...new Set(files.map((f) => f.datasets_id))];
 
@@ -435,9 +435,10 @@ router.post("/", async (req, res, next) => {
     return next(error(400, "All files must be part of the same dataset"));
   }
 
-  var {
-    rows: datasets,
-  } = await db.query("SELECT * FROM datasets WHERE id = $1", [datasets_ids[0]]);
+  var { rows: datasets } = await db.query(
+    "SELECT * FROM datasets WHERE id = $1",
+    [datasets_ids[0]]
+  );
 
   if (datasets.length < 1) {
     return next(error(404, "Error downloading file, dataset not found"));
@@ -450,6 +451,12 @@ router.post("/", async (req, res, next) => {
     );
   }
 
+  logger(
+    "post",
+    "download",
+    "Creating download package for repo: " + dataset.title
+  );
+
   if (
     dataset.password !== "none" &&
     dataset.embargo > 0 &&
@@ -461,11 +468,10 @@ router.post("/", async (req, res, next) => {
         new Date().getTime() - dataset.embargo * 30.4167 * 24 * 60 * 60 * 1000;
       for (var file of files) {
         if (file.filetype === "nc") {
-          var {
-            rows,
-          } = await db.query("SELECT * FROM files WHERE filelineage = $1", [
-            file.id,
-          ]);
+          var { rows } = await db.query(
+            "SELECT * FROM files WHERE filelineage = $1",
+            [file.id]
+          );
           if (rows.length < 1) {
             return next(
               error(404, "Error downloading file, can't find datetime")
@@ -495,8 +501,10 @@ router.post("/", async (req, res, next) => {
     }
   }
 
+
+
   var zipFile = [];
-  // Add readme if exists
+  logger("post", "download", "Adding readme to bundle", indent=1);
   try {
     let repo = fs.readdirSync(`git/${dataset.repositories_id}`);
     for (var f = 0; f < repo.length; f++) {
@@ -509,14 +517,14 @@ router.post("/", async (req, res, next) => {
     console.error(e);
   }
 
-  // Add parse information
+  logger("post", "download", "Adding parse information to bundle", indent=1);
   var infofilename = `metadata/${dataset.id}.txt`;
   if (!fs.existsSync(infofilename)) {
     await createParseInformationFile(dataset.id, infofilename);
   }
   zipFile.push({ path: infofilename, name: "parseInformation.txt" });
 
-  // Add Files
+  logger("post", "download", "Adding files to bundle", indent=1);
   var path, arr, name;
   for (var i = 0; i < files.length; i++) {
     path = files[i].filelink;
@@ -532,6 +540,8 @@ router.post("/", async (req, res, next) => {
     zipFile.push({ path: path, name: name });
   }
 
+  logger("post", "download", "Zipping file.", indent=1);
+
   res.status(200).zip(zipFile);
 });
 
@@ -540,20 +550,18 @@ async function createParseInformationFile(id, filename) {
   content =
     content +
     "The table below maps the physical parameter to its given axis. \n \n";
-  var {
-    rows,
-  } = await db.query("SELECT * FROM datasetparameters WHERE datasets_id = $1", [
-    id,
-  ]);
+  var { rows } = await db.query(
+    "SELECT * FROM datasetparameters WHERE datasets_id = $1",
+    [id]
+  );
   content =
     content +
     `Axis | Parameter | NetCDF Parameter Name | Unit | Description \n`;
   for (var i = 0; i < rows.length; i++) {
-    var {
-      rows: rows2,
-    } = await db.query("SELECT * FROM parameters WHERE id = $1", [
-      rows[i].parameters_id,
-    ]);
+    var { rows: rows2 } = await db.query(
+      "SELECT * FROM parameters WHERE id = $1",
+      [rows[i].parameters_id]
+    );
     content =
       content +
       `${rows[i].axis} | ${rows2[0].name} | ${rows[i].parseparameter} | ${rows[i].unit} | ${rows2[0].description} \n`;
