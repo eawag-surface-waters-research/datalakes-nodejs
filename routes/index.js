@@ -17,6 +17,7 @@ const netcdf = require("./netcdf");
 const monitor = require("./monitor");
 const status = require("./status");
 const repositories = require("./repositories");
+const maintenance = require("./maintenance")
 
 module.exports = (app) => {
   app.use("/selectiontables", selectiontables);
@@ -38,4 +39,5 @@ module.exports = (app) => {
   app.use("/netcdf", netcdf);
   app.use("/monitor", monitor);
   app.use("/status", status);
+  app.use("/maintenance", maintenance);
 };
