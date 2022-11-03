@@ -32,7 +32,7 @@ router.get("/:id", async (req, res, next) => {
     return next(error(400, "ID must be an integer"));
   }
   var { rows } = await db.query(
-    "SELECT * FROM maintenance m INNER JOIN datasetparameters dp ON m.datasets_id = dp.datasets_id AND m.parameters_id = dp.parameters_id WHERE m.datasets_id = $1",
+    "SELECT m.id, m.starttime, m.endtime, p.name, dp.parseparameter, m.description, m.reporter FROM maintenance m INNER JOIN datasetparameters dp ON m.datasets_id = dp.datasets_id AND m.parameters_id = dp.parameters_id INNER JOIN parameters p ON p.id = m.parameters_id WHERE m.datasets_id = $1",
     [id]
   );
   res.status(200).send(rows);
