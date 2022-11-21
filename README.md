@@ -1,5 +1,7 @@
 # Datalakes Rest-API
 
+[![License: MIT][mit-by-shield]][mit-by] ![Uptime][uptime-by-shield]
+
 ## Description
 
 This is a NodeJS REST-API for the datalakes project. 
@@ -69,3 +71,6 @@ crontab -e
 
 The PostgreSQL database schema is available [here](https://github.com/Datalakes-Eawag/datalakes-nodejs/blob/master/db/datalakes_schema.sql). This can be used to recreate the datalakes database and be populated with custom data. The database is vital for the functioning of the application. 
 
+[mit-by]: https://opensource.org/licenses/MIT
+[mit-by-shield]: https://img.shields.io/badge/License-MIT-g.svg
+[uptime-by-shield]: https://img.shields.io/uptimerobot/ratio/m787532337-a369e1ee818df93c931a3bdb

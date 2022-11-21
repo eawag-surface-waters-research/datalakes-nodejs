@@ -116,6 +116,16 @@ parseUrl = (url) => {
   };
 };
 
+parseSSH = (ssh) => {
+  if (ssh.includes("git@renkulab.io")) {
+    var folder = ssh.split(":")[1].split(".")[0];
+    var url = "https://renkulab.io/gitlab/" + folder;
+    return { url, folder };
+  } else {
+    return false;
+  }
+};
+
 parseDateTime = (datetime) => {
   function addzero(val) {
     return (val > 9 ? "" : "0") + val;
@@ -271,6 +281,7 @@ module.exports = {
   dataTypeVerification: dataTypeVerification,
   error: error,
   parseUrl: parseUrl,
+  parseSSH: parseSSH,
   parseDateTime: parseDateTime,
   parseDate: parseDate,
   readDateTime: readDateTime,

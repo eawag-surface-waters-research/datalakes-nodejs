@@ -18,6 +18,7 @@ const monitor = require("./monitor");
 const status = require("./status");
 const repositories = require("./repositories");
 const maintenance = require("./maintenance")
+const issues = require("./issues")
 
 module.exports = (app) => {
   app.use("/selectiontables", selectiontables);
@@ -40,4 +41,5 @@ module.exports = (app) => {
   app.use("/monitor", monitor);
   app.use("/status", status);
   app.use("/maintenance", maintenance);
+  app.use("/issues", issues)
 };
