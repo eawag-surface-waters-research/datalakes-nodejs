@@ -50,7 +50,7 @@ router.get("/:id", async (req, res, next) => {
     return next(error(400, "ID must be an integer"));
   }
   var { rows } = await db.query(
-    "SELECT accompanyingdata, citation, datasource, datasourcelink, description, downloads, embargo, fileconnect, id, lakes_id, latitude, licenses_id, liveconnect, longitude, mapplot, mapplotfunction, maxdatetime, maxdepth, mindatetime, mindepth, organisations_id, origin, persons_id, plotproperties, prefile, prescript, projects_id, renku, repositories_id, title, monitor FROM datasets WHERE id = $1",
+    "SELECT accompanyingdata, citation, datasource, datasourcelink, description, downloads, embargo, fileconnect, datasets.id, lakes_id, latitude, licenses_id, liveconnect, longitude, mapplot, mapplotfunction, maxdatetime, maxdepth, mindatetime, mindepth, organisations_id, origin, persons_id, plotproperties, prefile, prescript, projects_id, renku, repositories_id, ssh, title, monitor FROM datasets LEFT JOIN repositories ON datasets.repositories_id=repositories.id WHERE datasets.id = $1",
     [id]
   );
   if (rows.length < 1) {

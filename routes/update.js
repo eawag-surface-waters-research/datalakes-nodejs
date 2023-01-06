@@ -7,7 +7,7 @@ const { promisify } = require("util");
 const unlinkAsync = promisify(fs.unlink);
 const { spawn } = require("child_process");
 const db = require("../db");
-const { error, parseUrl, logger } = require("../functions");
+const { error, logger } = require("../functions");
 const creds = require("../config");
 
 router.get("/:id", async (req, res, next) => {

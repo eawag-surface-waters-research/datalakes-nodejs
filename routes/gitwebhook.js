@@ -174,7 +174,11 @@ router.post("/", async (req, res, next) => {
           console.error(e);
         }
       }
-      logger("post", "gitwebhook", "Completed processing webhook for repo: " + name);
+      logger(
+        "post",
+        "gitwebhook",
+        "Completed processing webhook for repo: " + name
+      );
     } else {
       // Do something about broken repo
       logger("post", "gitwebhook", "Connection to repository broken");
@@ -190,13 +194,10 @@ router.post("/", async (req, res, next) => {
 });
 
 inFolder = (link, folder) => {
-  var farr = folder.split("/blob/")[1].split("/");
-  farr.pop();
-  farr.shift();
   var arr = link.split("/");
   arr.shift();
   arr.pop();
-  return arr.join("/") === farr.join("/");
+  return arr.join("/") === folder;
 };
 
 addFile = async (datasets_id, filelink, filetype, parameters, fileconnect) => {
@@ -227,10 +228,8 @@ added = async (added, dataset, files, parameters, name, repo_id) => {
     filedetails = files.filter((file) => file.filelink === filelink);
     var arr = addedFile.split(".");
     var filetype = arr[arr.length - 1];
-    if (
-      inFolder(addedFile, dataset.datasourcelink) &&
-      filedetails.length === 0
-    ) {
+    var { dir } = parseUrl(dataset.datasourcelink);
+    if (inFolder(addedFile, dir) && filedetails.length === 0) {
       addFile(dataset.id, filelink, filetype, parameters, dataset.fileconnect);
     }
   }
@@ -274,7 +273,12 @@ modified = async (modified, dataset, files, parameters, name, repo_id) => {
 
 removeFile = async (file) => {
   if (file) {
-    logger("post", "gitwebhook", "Removing file: " + file.filelink, (indent = 2));
+    logger(
+      "post",
+      "gitwebhook",
+      "Removing file: " + file.filelink,
+      (indent = 2)
+    );
     // Delete file from database
     await db.query("DELETE FROM files WHERE id = $1", [file.id]);
 
