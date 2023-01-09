@@ -93,21 +93,29 @@ parseUrl = (url) => {
   var dir;
   var branch;
   var file;
-  url = url.replace("/-/", "/");
-  if (url.includes("renkulab.io/gitlab")) {
-    const path = url.split("/blob/")[1].split("/");
-    const loc = url.split("/blob/")[0].split("/");
-    const repo = loc[loc.length - 1];
-    branch = path[0];
-    ssh =
-      "git@renkulab.io:" +
-      url.split("/blob/")[0].split("renkulab.io/gitlab/").pop() +
-      ".git";
-    dir = path.slice(1, path.length - 1);
-    dir.unshift(repo);
-    dir = dir.join("/");
+
+  if (url.includes("https://")) {
+    url = url.replace("/-/", "/");
+    if (url.includes("renkulab.io/gitlab")) {
+      var path = url.split("/blob/")[1].split("/");
+      var loc = url.split("/blob/")[0].split("/");
+      var repo = loc[loc.length - 1];
+      branch = path[0];
+      ssh =
+        "git@renkulab.io:" +
+        url.split("/blob/")[0].split("renkulab.io/gitlab/").pop() +
+        ".git";
+      dir = path.slice(1, path.length - 1);
+      dir.unshift(repo);
+      dir = dir.join("/");
+      file = path[path.length - 1];
+    }
+  } else {
+    var path = url.split("/");
+    dir = path.slice(0, path.length - 1).join("/");
     file = path[path.length - 1];
   }
+
   return {
     ssh: ssh,
     dir: dir,
