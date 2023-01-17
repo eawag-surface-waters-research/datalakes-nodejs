@@ -323,20 +323,22 @@ router.get("/update/meteolakes", async (req, res, next) => {
       let interval = 180;
       let week = Math.max(...lakeweeks.data["Y" + year]);
       let api = lake.api.replace("YYYY", year).replace("WW", week);
-      let tmp = await axios.get(api, { timeout: 2000 });
-      let timesteps = tmp.data.Timesteps - 1;
-      let weekstart = getDateOfWeek(week, year).getTime();
-      let maxdatetime = new Date(
-        weekstart + 2 * 60 * 60 * 1000 + interval * timesteps * 60 * 1000
-      );
-      await db.query(
-        "UPDATE files SET maxdatetime = $1 WHERE datasets_id = $2",
-        [maxdatetime, lake.datasets_id]
-      );
-      await db.query("UPDATE datasets SET maxdatetime = $1 WHERE id = $2", [
-        maxdatetime,
-        lake.datasets_id,
-      ]);
+      try {
+        let tmp = await axios.get(api, { timeout: 2000 });
+        let timesteps = tmp.data.Timesteps - 1;
+        let weekstart = getDateOfWeek(week, year).getTime();
+        let maxdatetime = new Date(
+          weekstart + 2 * 60 * 60 * 1000 + interval * timesteps * 60 * 1000
+        );
+        await db.query(
+          "UPDATE files SET maxdatetime = $1 WHERE datasets_id = $2",
+          [maxdatetime, lake.datasets_id]
+        );
+        await db.query("UPDATE datasets SET maxdatetime = $1 WHERE id = $2", [
+          maxdatetime,
+          lake.datasets_id,
+        ]);
+      } catch (e) {}
     }
   }
   res.status(200).send("Success");

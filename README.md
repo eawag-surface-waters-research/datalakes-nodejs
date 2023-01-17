@@ -20,6 +20,7 @@ curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.s
 sudo apt-get install git-lfs
 git lfs install
 sudo apt-get install python3
+sudo apt-get install awscli
 sudo apt-get install gcc gfortran
 sudo apt-get install libnetcdf-dev libnetcdff-dev
 sudo apt-get install curl
