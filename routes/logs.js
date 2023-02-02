@@ -12,7 +12,7 @@ router.get("/info/:rows", async (req, res, next) => {
     exec(
       `tail -n ${rows} ~/.pm2/logs/datalakes-out.log`,
       (error, stdout, stderr) => {
-        res.set({"Content-Disposition":"attachment; filename=\"log.txt\""});
+        res.set({"Content-Disposition":"attachment; filename=\"info-log.txt\""});
         res.status(200).send(stdout);
       }
     );
@@ -21,7 +21,7 @@ router.get("/info/:rows", async (req, res, next) => {
   }
 });
 
-router.get("error/:rows", async (req, res, next) => {
+router.get("/error/:rows", async (req, res, next) => {
     var rows = req.params.rows;
     if (!isInt(rows)) {
       return next(error(400, "Rows must be an integer"));
@@ -30,7 +30,7 @@ router.get("error/:rows", async (req, res, next) => {
       exec(
         `tail -n ${rows} ~/.pm2/logs/datalakes-error.log`,
         (error, stdout, stderr) => {
-          res.set({"Content-Disposition":"attachment; filename=\"log.txt\""});
+          res.set({"Content-Disposition":"attachment; filename=\"error-log.txt\""});
           res.status(200).send(stdout);
         }
       );
