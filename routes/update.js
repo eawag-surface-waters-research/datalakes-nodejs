@@ -128,9 +128,19 @@ router.get("/:id", async (req, res, next) => {
       }
       for (var i = 0; i < file_download.length; i++) {
         if (nc_files.includes(file_download[i])) {
-          await modifyFileUpdate(file_download[i], files, parameters, dataset.fileconnect);
+          await modifyFileUpdate(
+            file_download[i],
+            files,
+            parameters,
+            dataset.fileconnect
+          );
         } else {
-          await addFileUpdate(id, file_download[i], parameters, dataset.fileconnect);
+          await addFileUpdate(
+            id,
+            file_download[i],
+            parameters,
+            dataset.fileconnect
+          );
         }
       }
       for (var i = 0; i < file_delete.length; i++) {
@@ -278,11 +288,13 @@ removeFileUpdate = async (filelink, files) => {
   if (nc_file) {
     logger("get", "update", "Removing file: " + filelink, (indent = 2));
     var json_file = files.find((file) => file.filelineage === nc_file.id);
-    if (fs.existsSync(json_file.filelink)) {
-      await unlinkAsync(json_file.filelink);
+    if (json_file) {
+      if (fs.existsSync(json_file.filelink)) {
+        await unlinkAsync(json_file.filelink);
+      }
+      await db.query("DELETE FROM files WHERE id = $1", [json_file.id]);
     }
     await db.query("DELETE FROM files WHERE id = $1", [nc_file.id]);
-    await db.query("DELETE FROM files WHERE id = $1", [json_file.id]);
   }
 };
 
