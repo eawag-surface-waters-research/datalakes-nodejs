@@ -7,12 +7,35 @@ const readDirAsync = promisify(fs.readdir);
 const statAsync = promisify(fs.stat);
 const { spawn } = require("child_process");
 
+now = () => {
+  let d = new Date();
+  let date = ("0" + d.getDate()).slice(-2);
+  let month = ("0" + (date_ob.getMonth() + 1)).slice(-2);
+  let year = date_ob.getFullYear();
+  let hours = date_ob.getHours();
+  let minutes = date_ob.getMinutes();
+  let seconds = date_ob.getSeconds();
+  return (
+    year +
+    "-" +
+    month +
+    "-" +
+    date +
+    " " +
+    hours +
+    ":" +
+    minutes +
+    ":" +
+    seconds
+  );
+};
+
 logger = (method, path, text, indent = 0) => {
   var space = " ";
   for (let i = 0; i < indent; i++) {
     space += "   ";
   }
-  console.log(["(", method, ":", path, ")", space, text].join(""));
+  console.log(["(", method, ":", path, ":", now(), ")", space, text].join(""));
 };
 
 walk = async (dir, fileList = [], folderList = []) => {

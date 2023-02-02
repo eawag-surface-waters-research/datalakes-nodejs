@@ -20,6 +20,7 @@ const repositories = require("./repositories");
 const maintenance = require("./maintenance")
 const issues = require("./issues")
 const update = require("./update")
+const logs = require("./logs")
 
 module.exports = (app) => {
   app.use("/selectiontables", selectiontables);
@@ -44,4 +45,5 @@ module.exports = (app) => {
   app.use("/maintenance", maintenance);
   app.use("/issues", issues)
   app.use("/update", update)
+  app.use("/logs", logs)
 };
