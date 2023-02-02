@@ -142,8 +142,8 @@ router.post("/", async (req, res, next) => {
             [dataset.id, "nc"]
           );
 
-          console.log("Local", "git/" + repos_id + "/" + dir, len(localFileList))
-          console.log("Global", len(globalFileList))
+          console.log("Local", "git/" + repos_id + "/" + dir, localFileList.length)
+          console.log("Global", globalFileList.length)
 
           var globalNames = globalFileList.map((gfl) => gfl.filelink);
 
