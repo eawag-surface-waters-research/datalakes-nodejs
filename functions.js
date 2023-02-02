@@ -35,7 +35,7 @@ logger = (method, path, text, indent = 0) => {
   for (let i = 0; i < indent; i++) {
     space += "   ";
   }
-  console.log(["(", method, ":", path, ":", now(), ")", space, text].join(""));
+  console.log(["(", now(), ":", method, ":", path, ")", space, text].join(""));
 };
 
 walk = async (dir, fileList = [], folderList = []) => {
