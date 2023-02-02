@@ -179,7 +179,7 @@ router.post("/", async (req, res, next) => {
           var globalNames = ncGlobalFiles.map((gfl) => gfl.filelink);
 
           for (var k = 0; k < localFileList.length; k++) {
-            let duplicates = globalFileList.filter(
+            let duplicates = ncGlobalFiles.filter(
               (gfl) => gfl.filelink === localFileList[k]
             );
             if (!globalNames.includes(localFileList[k])) {
@@ -202,7 +202,7 @@ router.post("/", async (req, res, next) => {
 
           for (var l = 0; l < globalNames.length; l++) {
             if (!localFileList.includes(globalNames[l])) {
-              removeFileWebhook(globalFileList[k]);
+              removeFileWebhook(ncGlobalFiles[k]);
             }
           }
         } catch (e) {
