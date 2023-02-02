@@ -12,6 +12,7 @@ router.get("/:rows", async (req, res, next) => {
     exec(
       `tail -n ${rows} ~/.pm2/logs/datalakes-out.log`,
       (error, stdout, stderr) => {
+        res.set({"Content-Disposition":"attachment; filename=\"log.txt\""});
         res.status(200).send(stdout);
       }
     );
