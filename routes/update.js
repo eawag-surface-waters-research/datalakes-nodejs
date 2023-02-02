@@ -128,13 +128,13 @@ router.get("/:id", async (req, res, next) => {
       }
       for (var i = 0; i < file_download.length; i++) {
         if (nc_files.includes(file_download[i])) {
-          await modifyFile(file_download[i], files, parameters, dataset.fileconnect);
+          await modifyFileUpdate(file_download[i], files, parameters, dataset.fileconnect);
         } else {
-          await addFile(id, file_download[i], parameters, dataset.fileconnect);
+          await addFileUpdate(id, file_download[i], parameters, dataset.fileconnect);
         }
       }
       for (var i = 0; i < file_delete.length; i++) {
-        await removeFile(file_delete[i], files);
+        await removeFileUpdate(file_delete[i], files);
       }
     } else {
       logger("get", "update", `Local files already up to date.`, (indent = 1));
@@ -170,19 +170,19 @@ router.get("/:id", async (req, res, next) => {
       if (duplicates.length > 1) {
         for (let d = 0; d < duplicates.length; d++) {
           if (d !== 0) {
-            removeFile(duplicates[d], files);
+            removeFileUpdate(duplicates[d], files);
           }
         }
       }
 
       if (!nc_globalNames.includes(localFileList[k])) {
-        addFile(id, localFileList[k], parameters, dataset.fileconnect);
+        addFileUpdate(id, localFileList[k], parameters, dataset.fileconnect);
       } else {
         var nc_globalfile = nc_globalFileList.filter(
           (f) => f.filelink === localFileList[k]
         )[0];
         if (!json_globalLineage.includes(nc_globalfile.id)) {
-          modifyFile(
+          modifyFileUpdate(
             localFileList[k],
             globalFileList,
             parameters,
@@ -193,7 +193,7 @@ router.get("/:id", async (req, res, next) => {
     }
     for (var l = 0; l < nc_globalNames.length; l++) {
       if (!localFileList.includes(nc_globalNames[l])) {
-        removeFile(nc_globalNames[l], globalFileList);
+        removeFileUpdate(nc_globalNames[l], globalFileList);
       }
     }
     logger("get", "update", `Update Complete.`, (indent = 1));
@@ -219,7 +219,7 @@ cmd = (command, output = []) => {
   });
 };
 
-addFile = async (datasets_id, filelink, parameters, fileconnect) => {
+addFileUpdate = async (datasets_id, filelink, parameters, fileconnect) => {
   logger("get", "update", "Adding file: " + filelink, (indent = 2));
   if (filelink.slice(-3) !== ".nc") {
     logger(
@@ -247,7 +247,7 @@ addFile = async (datasets_id, filelink, parameters, fileconnect) => {
   }
 };
 
-modifyFile = async (filelink, files, parameters, fileconnect) => {
+modifyFileUpdate = async (filelink, files, parameters, fileconnect) => {
   logger("get", "update", "Modifying file: " + filelink, (indent = 2));
   var nc_file = files.filter((file) => file.filelink === filelink)[0];
   var json_file = files.find((file) => file.filelineage === nc_file.id);
@@ -273,7 +273,7 @@ modifyFile = async (filelink, files, parameters, fileconnect) => {
   }
 };
 
-removeFile = async (filelink, files) => {
+removeFileUpdate = async (filelink, files) => {
   var nc_file = files.find((file) => file.filelink === filelink);
   if (nc_file) {
     logger("get", "update", "Removing file: " + filelink, (indent = 2));

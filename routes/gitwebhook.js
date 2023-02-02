@@ -149,7 +149,7 @@ router.post("/", async (req, res, next) => {
             );
             if (!globalNames.includes(localFileList[k])) {
               var filetype = localFileList[k].split(".").pop();
-              addFile(
+              addFileWebhook(
                 dataset.id,
                 localFileList[k],
                 filetype,
@@ -159,7 +159,7 @@ router.post("/", async (req, res, next) => {
             } else if (duplicates.length > 1) {
               for (let d = 0; d < duplicates.length; d++) {
                 if (d !== 0) {
-                  removeFile(duplicates[d]);
+                  removeFileWebhook(duplicates[d]);
                 }
               }
             }
@@ -167,7 +167,7 @@ router.post("/", async (req, res, next) => {
 
           for (var l = 0; l < globalNames.length; l++) {
             if (!localFileList.includes(globalNames[l])) {
-              removeFile(globalFileList[k]);
+              removeFileWebhook(globalFileList[k]);
             }
           }
         } catch (e) {
@@ -200,7 +200,7 @@ inFolder = (link, folder) => {
   return arr.join("/") === folder;
 };
 
-addFile = async (datasets_id, filelink, filetype, parameters, fileconnect) => {
+addFileWebhook = async (datasets_id, filelink, filetype, parameters, fileconnect) => {
   logger("post", "gitwebhook", "Adding file: " + filelink, (indent = 2));
   var { rows: newfiles } = await db.query(
     "INSERT INTO files (datasets_id, filelink, filetype) VALUES ($1,$2,$3) RETURNING *",
@@ -230,7 +230,7 @@ added = async (added, dataset, files, parameters, name, repo_id) => {
     var filetype = arr[arr.length - 1];
     var { dir } = parseUrl(dataset.datasourcelink);
     if (inFolder(addedFile, dir) && filedetails.length === 0) {
-      addFile(dataset.id, filelink, filetype, parameters, dataset.fileconnect);
+      addFileWebhook(dataset.id, filelink, filetype, parameters, dataset.fileconnect);
     }
   }
   return;
@@ -271,7 +271,7 @@ modified = async (modified, dataset, files, parameters, name, repo_id) => {
   }
 };
 
-removeFile = async (file) => {
+removeFileWebhook = async (file) => {
   if (file) {
     logger(
       "post",
@@ -301,7 +301,7 @@ removed = async (removed, dataset, files, name, repo_id) => {
     filedetails = files.filter((file) => file.filelink === link);
     if (filedetails.length === 1) {
       jsonfile = files.find((file) => file.filelineage === filedetails[0].id);
-      removeFile(jsonfile);
+      removeFileWebhook(jsonfile);
     }
   }
 };
