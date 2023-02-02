@@ -136,6 +136,7 @@ router.post("/", async (req, res, next) => {
           localFileList = localFileList.map(
             (lfl) => "git/" + repos_id + "/" + dir + "/" + lfl
           );
+
           var { rows: globalFileList } = await db.query(
             "SELECT * FROM files WHERE datasets_id = $1 AND filetype = $2",
             [dataset.id, "nc"]
@@ -159,7 +160,7 @@ router.post("/", async (req, res, next) => {
             } else if (duplicates.length > 1) {
               for (let d = 0; d < duplicates.length; d++) {
                 if (d !== 0) {
-                  removeFileWebhook(duplicates[d]);
+                  removeFileWebhook(duplicates[d], "duplicated");
                 }
               }
             }
@@ -167,7 +168,7 @@ router.post("/", async (req, res, next) => {
 
           for (var l = 0; l < globalNames.length; l++) {
             if (!localFileList.includes(globalNames[l])) {
-              removeFileWebhook(globalFileList[k]);
+              removeFileWebhook(globalFileList[k], "excessive");
             }
           }
         } catch (e) {
@@ -200,7 +201,13 @@ inFolder = (link, folder) => {
   return arr.join("/") === folder;
 };
 
-addFileWebhook = async (datasets_id, filelink, filetype, parameters, fileconnect) => {
+addFileWebhook = async (
+  datasets_id,
+  filelink,
+  filetype,
+  parameters,
+  fileconnect
+) => {
   logger("post", "gitwebhook", "Adding file: " + filelink, (indent = 2));
   var { rows: newfiles } = await db.query(
     "INSERT INTO files (datasets_id, filelink, filetype) VALUES ($1,$2,$3) RETURNING *",
@@ -230,7 +237,13 @@ added = async (added, dataset, files, parameters, name, repo_id) => {
     var filetype = arr[arr.length - 1];
     var { dir } = parseUrl(dataset.datasourcelink);
     if (inFolder(addedFile, dir) && filedetails.length === 0) {
-      addFileWebhook(dataset.id, filelink, filetype, parameters, dataset.fileconnect);
+      addFileWebhook(
+        dataset.id,
+        filelink,
+        filetype,
+        parameters,
+        dataset.fileconnect
+      );
     }
   }
   return;
@@ -271,12 +284,12 @@ modified = async (modified, dataset, files, parameters, name, repo_id) => {
   }
 };
 
-removeFileWebhook = async (file) => {
+removeFileWebhook = async (file, comment) => {
   if (file) {
     logger(
       "post",
       "gitwebhook",
-      "Removing file: " + file.filelink,
+      "Removing file " + comment + ": " + file.filelink,
       (indent = 2)
     );
     // Delete file from database
@@ -301,7 +314,7 @@ removed = async (removed, dataset, files, name, repo_id) => {
     filedetails = files.filter((file) => file.filelink === link);
     if (filedetails.length === 1) {
       jsonfile = files.find((file) => file.filelineage === filedetails[0].id);
-      removeFileWebhook(jsonfile);
+      removeFileWebhook(jsonfile, "webhook");
     }
   }
 };
