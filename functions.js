@@ -12,9 +12,9 @@ now = () => {
   let date = ("0" + d.getDate()).slice(-2);
   let month = ("0" + (d.getMonth() + 1)).slice(-2);
   let year = d.getFullYear();
-  let hours = d.getHours();
-  let minutes = d.getMinutes();
-  let seconds = d.getSeconds();
+  let hours = ("0" + d.getHours()).slice(-2);
+  let minutes = ("0" + d.getMinutes()).slice(-2);
+  let seconds = ("0" + d.getSeconds()).slice(-2);
   return (
     year +
     "-" +
