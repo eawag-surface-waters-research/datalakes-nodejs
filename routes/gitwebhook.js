@@ -127,7 +127,7 @@ router.post("/", async (req, res, next) => {
           logger(
             "post",
             "gitwebhook",
-            "Check fully syncronised and add orphan files",
+            "Check all global NetCDF files have JSON counterparts",
             (indent = 1)
           );
           var { dir } = parseUrl(dataset.datasourcelink);
@@ -137,15 +137,46 @@ router.post("/", async (req, res, next) => {
             (lfl) => "git/" + repos_id + "/" + dir + "/" + lfl
           );
 
-          var { rows: globalFileList } = await db.query(
-            "SELECT * FROM files WHERE datasets_id = $1 AND filetype = $2",
-            [dataset.id, "nc"]
+          var { rows: allGlobalFiles } = await db.query(
+            "SELECT * FROM files WHERE datasets_id = $1",
+            [dataset.id]
           );
 
-          console.log("Local", "git/" + repos_id + "/" + dir, localFileList.length)
-          console.log("Global", globalFileList.length)
+          var ncGlobalFiles = allGlobalFiles.filter((x) => x.filetype == "nc");
+          var jsonGlobalLineage = allGlobalFiles
+            .filter((x) => x.filetype == "json")
+            .map((x) => x.filelineage);
 
-          var globalNames = globalFileList.map((gfl) => gfl.filelink);
+          for (let i = 0; i < ncGlobalFiles.length; i++) {
+            if (!jsonGlobalLineage.includes(ncGlobalFiles[i].id)) {
+              logger(
+                "post",
+                "gitwebhook",
+                "Adding file: " + ncGlobalFiles[i].filelink,
+                (indent = 2)
+              );
+              var url = creds.apiUrl + "/convert";
+              var body = {
+                id: ncGlobalFiles[i].id,
+                variables: parameters,
+                fileconnect: dataset.fileconnect,
+              };
+              try {
+                await axios.post(url, body);
+              } catch (e) {
+                console.error(e);
+              }
+            }
+          }
+
+          logger(
+            "post",
+            "gitwebhook",
+            "Check fully syncronised and add orphan files",
+            (indent = 1)
+          );
+
+          var globalNames = ncGlobalFiles.map((gfl) => gfl.filelink);
 
           for (var k = 0; k < localFileList.length; k++) {
             let duplicates = globalFileList.filter(
@@ -163,7 +194,7 @@ router.post("/", async (req, res, next) => {
             } else if (duplicates.length > 1) {
               for (let d = 0; d < duplicates.length; d++) {
                 if (d !== 0) {
-                  removeFileWebhook(duplicates[d], "duplicated");
+                  removeFileWebhook(duplicates[d]);
                 }
               }
             }
@@ -171,7 +202,7 @@ router.post("/", async (req, res, next) => {
 
           for (var l = 0; l < globalNames.length; l++) {
             if (!localFileList.includes(globalNames[l])) {
-              removeFileWebhook(globalFileList[k], "excessive");
+              removeFileWebhook(globalFileList[k]);
             }
           }
         } catch (e) {
@@ -287,12 +318,12 @@ modified = async (modified, dataset, files, parameters, name, repo_id) => {
   }
 };
 
-removeFileWebhook = async (file, comment) => {
+removeFileWebhook = async (file) => {
   if (file) {
     logger(
       "post",
       "gitwebhook",
-      "Removing file " + comment + ": " + file.filelink,
+      "Removing file : " + file.filelink,
       (indent = 2)
     );
     // Delete file from database
@@ -317,7 +348,7 @@ removed = async (removed, dataset, files, name, repo_id) => {
     filedetails = files.filter((file) => file.filelink === link);
     if (filedetails.length === 1) {
       jsonfile = files.find((file) => file.filelineage === filedetails[0].id);
-      removeFileWebhook(jsonfile, "webhook");
+      removeFileWebhook(jsonfile);
     }
   }
 };
