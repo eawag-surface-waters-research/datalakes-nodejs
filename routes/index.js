@@ -17,10 +17,11 @@ const netcdf = require("./netcdf");
 const monitor = require("./monitor");
 const status = require("./status");
 const repositories = require("./repositories");
-const maintenance = require("./maintenance")
-const issues = require("./issues")
-const update = require("./update")
-const logs = require("./logs")
+const maintenance = require("./maintenance");
+const issues = require("./issues");
+const update = require("./update");
+const logs = require("./logs");
+const s3zip = require("./s3zip");
 
 module.exports = (app) => {
   app.use("/selectiontables", selectiontables);
@@ -43,7 +44,8 @@ module.exports = (app) => {
   app.use("/monitor", monitor);
   app.use("/status", status);
   app.use("/maintenance", maintenance);
-  app.use("/issues", issues)
-  app.use("/update", update)
-  app.use("/logs", logs)
+  app.use("/issues", issues);
+  app.use("/update", update);
+  app.use("/logs", logs);
+  app.use("/s3zip", s3zip);
 };
