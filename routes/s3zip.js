@@ -15,11 +15,6 @@ AWS.config.update({
 AWS.config.setPromisesDependency();
 const s3 = new AWS.S3();
 
-const headers = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Credentials": true,
-};
-
 const streamTo = (bucket, key, resolve) => {
     var passthrough = new stream.PassThrough();
     s3.upload(
@@ -62,8 +57,8 @@ const streamTo = (bucket, key, resolve) => {
   };
 
 const sendStatus = async (bucket, id, message) => {
-  fs.writeFileSync("/tmp/status.txt", message);
-  const fileStream = fs.createReadStream("/tmp/status.txt");
+  fs.writeFileSync(`/tmp/status_${id}.txt`, message);
+  const fileStream = fs.createReadStream(`/tmp/status_${id}.txt`);
   const uploadParams = {
     Bucket: bucket,
     Body: fileStream,

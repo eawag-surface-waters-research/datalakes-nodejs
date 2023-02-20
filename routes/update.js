@@ -10,6 +10,16 @@ const db = require("../db");
 const { error, logger } = require("../functions");
 const creds = require("../config");
 
+// S3 Connections
+var AWS = require("aws-sdk");
+AWS.config.update({
+  accessKeyId: creds.AWS_accessKeyId,
+  secretAccessKey: creds.AWS_secretAccessKey,
+  region: creds.AWS_region,
+});
+AWS.config.setPromisesDependency();
+const s3 = new AWS.S3();
+
 router.get("/:id", async (req, res, next) => {
   var id = req.params.id;
   if (!isInt(id)) {
@@ -120,6 +130,19 @@ router.get("/:id", async (req, res, next) => {
     }
 
     if (file_download.length > 0 || file_delete.length > 0) {
+      logger("get", "update", `Updating file list`, (indent = 1));
+      try {
+        await syncFileList(
+          bucket_name,
+          host,
+          group,
+          repository,
+          dataset.repositories_id
+        );
+      } catch (e) {
+        console.error(e);
+      }
+
       var command = `aws s3 sync ${bucket_uri} ${folder} --delete`;
       var code = await cmd(command);
       if (code !== 0) {
@@ -211,6 +234,56 @@ router.get("/:id", async (req, res, next) => {
     logger("get", "update", `No bucket file located.`, (indent = 1));
   }
 });
+
+syncFileList = async (bucket_name, host, group, repository, repo_id) => {
+  const id = Math.floor(Math.random() * 10000000000);
+  var prefix = `${host}/${group}/${repository}/data/`;
+  const params = {
+    Bucket: bucket_name,
+    Prefix: prefix,
+    MaxKeys: 1000,
+  };
+
+  bucket_files = await new Promise((resolve, reject) => {
+    try {
+      const allKeys = [];
+      listAllKeys();
+      function listAllKeys() {
+        s3.listObjectsV2(params, function (err, data) {
+          if (err) {
+            reject(err);
+          } else {
+            var contents = data.Contents;
+            contents.forEach(function (content) {
+              allKeys.push({
+                k: content.Key.replace(prefix, ""),
+                s: content.Size,
+              });
+            });
+            if (data.IsTruncated) {
+              params.ContinuationToken = data.NextContinuationToken;
+              listAllKeys();
+            } else {
+              resolve(allKeys);
+            }
+          }
+        });
+      }
+    } catch (e) {
+      reject(e);
+    }
+  });
+  fs.writeFileSync(`/tmp/filelist_${id}.json`, JSON.stringify(bucket_files));
+  const fileStream = fs.createReadStream(`/tmp/filelist_${id}.json`);
+  const uploadParams = {
+    Bucket: bucket_name,
+    Body: fileStream,
+    Key: `${host}/${group}/${repository}/filelist.json`,
+  };
+  return s3.upload(uploadParams).promise();
+};
+
+const sendStatus = async (bucket, id, message) => {};
 
 cmd = (command, output = []) => {
   let p = spawn(command, {
