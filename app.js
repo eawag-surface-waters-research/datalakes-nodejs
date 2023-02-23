@@ -5,7 +5,10 @@ const creds = require("./config");
 module.exports = () => {
   const app = express();
   // Just a basic route
-  app.use(express.json());
+  app.use(express.json({ limit: "1mb" }));
+  app.use(
+    express.urlencoded({ extended: true, limit: "1mb", parameterLimit: 1000 })
+  );
   app.use(function (req, res, next) {
     res.setHeader("Access-Control-Allow-Origin", "*");
     res.setHeader("Access-Control-Allow-Methods", "*");
