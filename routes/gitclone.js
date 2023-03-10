@@ -5,7 +5,7 @@ const format = require("pg-format");
 const fs = require("fs");
 const { spawn } = require("child_process");
 const db = require("../db");
-const path = require('path');
+const path = require("path");
 var AWS = require("aws-sdk");
 const { checkObject, error, logging } = require("../functions");
 
@@ -150,6 +150,13 @@ router.post("/", async (req, res, next) => {
 
         var bucket_files = [];
         if (fs.existsSync(`git/${repo_id}/${repo_name}/.bucket`)) {
+          logger(
+            "post",
+            "gitclone",
+            "Collecting list of files from S3 bucket.",
+            (indent = 1)
+          );
+
           const bucket = fs.readFileSync(
             `git/${repo_id}/${repo_name}/.bucket`,
             "utf8"
@@ -200,10 +207,23 @@ router.post("/", async (req, res, next) => {
                 });
               }
             } catch (e) {
+              logger(
+                "post",
+                "gitclone",
+                `Failed to collect list of S3 files: ${e}`,
+                (indent = 1)
+              );
               reject(e);
             }
           });
         }
+
+        logger(
+          "post",
+          "gitclone",
+          "Successfully collected list of S3 files",
+          (indent = 1)
+        );
 
         var allFiles = getFiles("git/" + repo_id, bucket_files);
 
@@ -352,9 +372,14 @@ router.post("/files/", async (req, res, next) => {
   }
 
   if (download_files) {
-    var bucket_uri = `s3://${bucket_name}/${host}/${group}/${repository}/${folder_path}`
+    var bucket_uri = `s3://${bucket_name}/${host}/${group}/${repository}/${folder_path}`;
     var command = `aws s3 sync ${bucket_uri} ${folder}`;
-    logger("post", "gitclone/files", `Executing command ${command}`, indent=1);
+    logger(
+      "post",
+      "gitclone/files",
+      `Executing command ${command}`,
+      (indent = 1)
+    );
 
     // Run the server commands
     const child = spawn(command, {
