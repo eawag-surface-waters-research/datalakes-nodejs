@@ -85,7 +85,7 @@ router.get("/:id", async (req, res, next) => {
     var bucket_uri = `s3://${bucket_name}/${host}/${group}/${parts
       .slice(0, parts.length - 1)
       .join("/")}`;
-    var command = `aws s3 sync ${bucket_uri} ${folder} --dryrun --delete`;
+    var command = `aws s3 sync ${bucket_uri} ${folder} --dryrun --delete --exact-timestamps`;
 
     output = [];
     var code = await cmd(command, (output = output));
@@ -143,7 +143,7 @@ router.get("/:id", async (req, res, next) => {
         console.error(e);
       }
 
-      var command = `aws s3 sync ${bucket_uri} ${folder} --delete`;
+      var command = `aws s3 sync ${bucket_uri} ${folder} --delete --exact-timestamps`;
       var code = await cmd(command);
       if (code !== 0) {
         logger("get", "update", `Failed to perform s3 sync`, (indent = 1));
