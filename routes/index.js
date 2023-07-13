@@ -22,6 +22,7 @@ const issues = require("./issues");
 const update = require("./update");
 const logs = require("./logs");
 const s3zip = require("./s3zip");
+const data = require("./data");
 
 module.exports = (app) => {
   app.use("/selectiontables", selectiontables);
@@ -48,4 +49,5 @@ module.exports = (app) => {
   app.use("/update", update);
   app.use("/logs", logs);
   app.use("/s3zip", s3zip);
+  app.use("/data", data);
 };
