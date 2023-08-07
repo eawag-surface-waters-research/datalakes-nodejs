@@ -118,20 +118,31 @@ parseUrl = (url) => {
   var file;
 
   if (url.includes("https://")) {
-    url = url.replace("/-/", "/");
+    var url_split = url.replace("/-/", "/").split("/blob/");
+    var path = url_split[1].split("/");
+    var loc = url_split[0].split("/");
+    var repo = loc[loc.length - 1];
+    branch = path[0];
+    dir = path.slice(1, path.length - 1);
+    dir.unshift(repo);
+    dir = dir.join("/");
+    file = path[path.length - 1];
     if (url.includes("renkulab.io/gitlab")) {
-      var path = url.split("/blob/")[1].split("/");
-      var loc = url.split("/blob/")[0].split("/");
-      var repo = loc[loc.length - 1];
-      branch = path[0];
       ssh =
         "git@renkulab.io:" +
         url.split("/blob/")[0].split("renkulab.io/gitlab/").pop() +
         ".git";
-      dir = path.slice(1, path.length - 1);
-      dir.unshift(repo);
-      dir = dir.join("/");
-      file = path[path.length - 1];
+    } else if (url.includes("gitlab.renkulab.io")) {
+      ssh =
+        "git@gitlab.renkulab.io:" +
+        url_split[0].split("gitlab.renkulab.io/").pop() +
+        ".git";
+    } else if (url.includes("github.com")) {
+      ssh =
+        "git@github.com:" + url_split[0].split("github.com/").pop() + ".git";
+    } else if (url.includes("gitlab.com")) {
+      ssh =
+        "git@gitlab.com:" + url_split[0].split("gitlab.com/").pop() + ".git";
     }
   } else {
     var path = url.split("/");
@@ -151,6 +162,18 @@ parseSSH = (ssh) => {
   if (ssh.includes("git@renkulab.io")) {
     var folder = ssh.split(":")[1].split(".")[0];
     var url = "https://renkulab.io/gitlab/" + folder;
+    return { url, folder };
+  } else if (ssh.includes("git@gitlab.renkulab.io")) {
+    var folder = ssh.split(":")[1].split(".")[0];
+    var url = "https://gitlab.renkulab.io/" + folder;
+    return { url, folder };
+  } else if (ssh.includes("git@github.com")) {
+    var folder = ssh.split(":")[1].split(".")[0];
+    var url = "https://github.com/" + folder;
+    return { url, folder };
+  } else if (ssh.includes("git@gitlab")) {
+    var folder = ssh.split(":")[1].split(".")[0];
+    var url = "https://gitlab.com/" + folder;
     return { url, folder };
   } else {
     return false;

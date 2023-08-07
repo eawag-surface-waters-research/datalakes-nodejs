@@ -49,6 +49,27 @@ router.post("/", async (req, res, next) => {
     } catch (e) {
       return next(error(500, "Failed to report issue.", e.message));
     }
+  } else if (rows[0].ssh.includes("git@gitlab.renkulab.io")) {
+    try {
+      var { data } = await axios.get(
+        "https://gitlab.renkulab.io/api/v4/projects/" + folder,
+        {
+          httpsAgent: agent,
+          headers: { Authorization: `Bearer ${creds.RENKU_LAB_API_KEY}` },
+        }
+      );
+      await axios.post(
+        "https://gitlab.renkulab.io/api/v4/projects/" + data.id + "/issues",
+        { title, description, assignee_id: 358 },
+        {
+          httpsAgent: agent,
+          headers: { Authorization: `Bearer ${creds.RENKU_LAB_API_KEY}` },
+        }
+      );
+      res.status(201).send();
+    } catch (e) {
+      return next(error(500, "Failed to report issue.", e.message));
+    }
   } else {
     return next(error(404, "Unable to add issues to non-renku repositories"));
   }
