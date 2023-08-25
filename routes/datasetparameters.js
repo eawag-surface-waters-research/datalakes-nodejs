@@ -46,14 +46,14 @@ router.get("/", async (req, res, next) => {
 
 /**
  * @swagger
- * /datasetparameters/{id}:
+ * /datasetparameters/{dataset_id}:
  *  get:
  *    tags: 
  *       ['Dataset Parameters']
  *    description: Get parameters of specific dataset based on id
  *    parameters:
  *       - in: path
- *         name: id   # Note the name is the same as in the path
+ *         name: dataset_id   # Note the name is the same as in the path
  *         required: true
  *         type: integer
  *         minimum: 1
@@ -62,19 +62,19 @@ router.get("/", async (req, res, next) => {
  *      '200':
  *        description: A successful response
  */
-router.get("/:id", async (req, res, next) => {
+router.get("/:datasets_id", async (req, res, next) => {
   var id = req.params.id;
   if (!isInt(id)) {
     return next(error(400, "ID must be an integer"));
   }
   var { rows } = await db.query(
-    "SELECT * FROM datasetparameters WHERE id = $1",
+    "SELECT * FROM datasetparameters WHERE datasets_id = $1",
     [id]
   );
   if (rows.length < 1) {
     return next(error(404, "Dataset not found in database"));
   }
-  res.status(200).send(rows[0]);
+  res.status(200).send(rows);
 });
 
 router.post("/", async (req, res, next) => {
