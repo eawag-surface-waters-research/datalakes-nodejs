@@ -17,7 +17,7 @@ const { isInt, error } = require("../functions");
  *    description: Get files for specific dataset based on id
  *    parameters:
  *      - in: query
- *        name: datasets_id
+ *        name: dataset_id
  *        type: integer
  *        description: The id of the dataset
  *    responses:
@@ -58,14 +58,14 @@ router.get("/", async (req, res, next) => {
 
 /**
  * @swagger
- * /files/{id}:
+ * /files/{file_id}:
  *  get:
  *    tags: 
  *       ['Files']
- *    description: Get file information based on file id
+ *    description: Get metadata for a given file based on its file id
  *    parameters:
  *       - in: path
- *         name: id   # Note the name is the same as in the path
+ *         name: file_id
  *         required: true
  *         type: integer
  *         minimum: 1

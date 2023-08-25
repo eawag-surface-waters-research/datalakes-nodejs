@@ -28,14 +28,14 @@ router.get("/", async (req, res, next) => {
 
 /**
  * @swagger
- * /datasets/{id}:
+ * /datasets/{dataset_id}:
  *  get:
  *    tags:
  *       ['Datasets']
  *    description: Get properties of specific dataset based on id
  *    parameters:
  *       - in: path
- *         name: id   # Note the name is the same as in the path
+ *         name: dataset_id   # Note the name is the same as in the path
  *         required: true
  *         type: integer
  *         minimum: 1

@@ -69,7 +69,7 @@ router.get("/:datasets_id", async (req, res, next) => {
   }
   var { rows } = await db.query(
     "SELECT * FROM datasetparameters WHERE datasets_id = $1",
-    [id]
+    [datasets_id]
   );
   if (rows.length < 1) {
     return next(error(404, "Dataset not found in database"));

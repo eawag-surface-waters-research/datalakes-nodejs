@@ -46,7 +46,7 @@ router.get("/", async (req, res, next) => {
  *    description: Download specific look up table for Datalakes database.
  *    parameters:
  *       - in: path
- *         name: table   # Note the name is the same as in the path
+ *         name: table
  *         description: Table name.
  *         required: true
  *         type: string
@@ -75,33 +75,6 @@ router.get("/:table", async (req, res, next) => {
   res.status(200).send(rows);
 });
 
-
-/**
- * @swagger
- * /selectiontables/{table}/{id}:
- *  get:
- *    tags:
- *       ['Selection Tables']
- *    description: Download specific parameter in specific look up table for Datalakes database.
- *    parameters:
- *       - in: path
- *         name: table   # Note the name is the same as in the path
- *         required: true
- *         type: string
- *         minimum: 1
- *         description: Table name.
- *         default: "parameters"
- *         enum: ["parameters","lakes","organisations","persons","projects","sensors","licenses"]
- *       - in: path
- *         name: id   # Note the name is the same as in the path
- *         required: true
- *         type: integer
- *         minimum: 1
- *         description: Parameter id. 
- *    responses:
- *      '200':
- *        description: A successful response
- */
 router.get("/:table/:id", async (req, res, next) => {
   const table = req.params.table;
   const id = req.params.id;

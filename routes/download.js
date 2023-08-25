@@ -23,20 +23,20 @@ checkInt = (ids) => {
 
 /**
  * @swagger
- * /download/csv/{id}:
+ * /download/csv/{file_id}:
  *  get:
  *    tags:
  *       ['Download']
  *    description: Download csv file based on its ID, password or API_KEY required to download embargoed datasets.
  *    parameters:
  *       - in: path
- *         name: id   # Note the name is the same as in the path
+ *         name: file_id
  *         required: true
  *         type: integer
  *         minimum: 1
  *         description: The file ID.
  *       - in: query
- *         name: password   # Note the name is the same as in the path
+ *         name: password
  *         type: string
  *         description: Password to allow access to embargoed data. Leave blank for unembargoed data or for data outside the embargo period.
  *    responses:
@@ -133,20 +133,20 @@ router.get("/csv/:fileid/:password?", async (req, res, next) => {
 
 /**
  * @swagger
- * /download/{id}:
+ * /download/{file_id}:
  *  get:
  *    tags:
  *       ['Download']
  *    description: Download specific file based on its ID, password or API_KEY required to download embargoed datasets.
  *    parameters:
  *       - in: path
- *         name: id   # Note the name is the same as in the path
+ *         name: file_id
  *         required: true
  *         type: integer
  *         minimum: 1
  *         description: The file ID.
  *       - in: query
- *         name: password   # Note the name is the same as in the path
+ *         name: password 
  *         type: string
  *         description: Password to allow access to embargoed data. Leave blank for unembargoed data or for data outside the embargo period.
  *    responses:
@@ -235,7 +235,7 @@ router.get("/:fileid/:password?", async (req, res, next) => {
  *      - application/zip
  *    parameters:
  *       - in: body
- *         name: ids
+ *         name: file_ids
  *         description: List of file ids to download.
  *         schema:
  *           type: object
@@ -246,7 +246,7 @@ router.get("/:fileid/:password?", async (req, res, next) => {
  *               type: array
  *               items: {}
  *       - in: query
- *         name: password   # Note the name is the same as in the path
+ *         name: password
  *         type: string
  *         description: Password to allow access to embargoed data. Leave blank for unembargoed data or for data outside the embargo period.
  *    responses:
@@ -397,7 +397,7 @@ router.post("/csv/", async (req, res, next) => {
  *      - application/zip
  *    parameters:
  *       - in: body
- *         name: ids
+ *         name: file_ids
  *         description: List of file ids to download.
  *         schema:
  *           type: object
@@ -408,7 +408,7 @@ router.post("/csv/", async (req, res, next) => {
  *               type: array
  *               items: {}
  *       - in: query
- *         name: password   # Note the name is the same as in the path
+ *         name: password 
  *         type: string
  *         description: Password to allow access to embargoed data. Leave blank for unembargoed data or for data outside the embargo period.
  *    responses:
