@@ -12,7 +12,7 @@ const { isInt, error } = require("../functions");
  * @swagger
  * /files/:
  *  get:
- *    tags: 
+ *    tags:
  *       ['Files']
  *    description: Get files for specific dataset based on id
  *    parameters:
@@ -34,16 +34,15 @@ router.get("/", async (req, res, next) => {
       if (!req.query.type === "json") {
         return next(error(400, "Type query not available, try using json"));
       }
-      var {
-        rows,
-      } = await db.query(
+      var { rows } = await db.query(
         "SELECT * FROM files WHERE datasets_id = $1 AND filetype = 'json'",
         [id]
       );
     } else {
-      var {
-        rows,
-      } = await db.query("SELECT * FROM files WHERE datasets_id = $1", [id]);
+      var { rows } = await db.query(
+        "SELECT * FROM files WHERE datasets_id = $1",
+        [id]
+      );
     }
 
     if (rows.length < 1) {
@@ -58,9 +57,73 @@ router.get("/", async (req, res, next) => {
 
 /**
  * @swagger
+ * /files/recent/{dataset_id}:
+ *  get:
+ *    tags:
+ *       ['Files']
+ *    description: Get most recent file for specific dataset based on dataset_id
+ *    parameters:
+ *      - in: path
+ *        name: dataset_id
+ *        type: integer
+ *        description: The id of the dataset
+ *    responses:
+ *      '200':
+ *        description: A successful response
+ */
+router.get("/recent/{id}", async (req, res, next) => {
+  var id = req.params.id;
+  if (!isInt(id)) {
+    return next(error(400, "ID must be an integer"));
+  }
+  var timestamp = new Date();
+  const query = `
+    SELECT *
+    FROM files
+    WHERE mindatetime <= $2
+    AND maxdatetime >= $2
+    AND datasets_id = $1
+    AND filetype = 'json'
+    OR (
+        NOT EXISTS (
+            SELECT 1
+            FROM files
+            WHERE mindatetime <= $2
+            AND maxdatetime >= $2
+            AND datasets_id = $1
+            AND filetype = 'json'
+        )
+        AND (
+            mindatetime = (
+                SELECT MAX(mindatetime)
+                FROM files
+                WHERE mindatetime <= $2
+                AND datasets_id = $1
+                AND filetype = 'json'
+            )
+            OR maxdatetime = (
+                SELECT MIN(maxdatetime)
+                FROM files
+                WHERE maxdatetime >= $2
+                AND datasets_id = $1
+                AND filetype = 'json'
+            )
+        )
+    )
+    ORDER BY ABS(EXTRACT(EPOCH FROM ($2 - mindatetime)))
+    LIMIT 1;`;
+  var { rows } = await db.query(query, [id, timestamp]);
+  if (rows.length < 1) {
+    return next(error(404, "Dataset not found in database"));
+  }
+  res.status(200).send(rows[0])
+});
+
+/**
+ * @swagger
  * /files/{file_id}:
  *  get:
- *    tags: 
+ *    tags:
  *       ['Files']
  *    description: Get metadata for a given file based on its file id
  *    parameters:
@@ -208,9 +271,7 @@ router.get("/clean/:id", async (req, res, next) => {
   if (!isInt(id)) {
     return next(error(400, "ID must be an integer"));
   }
-  var {
-    rows,
-  } = await db.query(
+  var { rows } = await db.query(
     "DELETE FROM files WHERE datasets_id = $1 AND filetype = 'json' RETURNING *",
     [id]
   );

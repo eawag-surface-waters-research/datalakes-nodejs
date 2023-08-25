@@ -9,7 +9,7 @@ const { isInt, error } = require("../functions");
 
 /**
  * @swagger
- * /data/{dataset_id}/{parameter}:
+ * /data/{dataset_id}/{axis}:
  *  get:
  *    tags:
  *       ['Data']
@@ -22,10 +22,10 @@ const { isInt, error } = require("../functions");
  *         minimum: 1
  *         description: The dataset ID.
  *       - in: path
- *         name: parameter
+ *         name: axis
  *         required: true
  *         type: string
- *         description: Parameter e.g. y1
+ *         description: Axis e.g. y1
  *    responses:
  *      '200':
  *        description: A successful response
