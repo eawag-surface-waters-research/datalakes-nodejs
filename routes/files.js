@@ -71,7 +71,7 @@ router.get("/", async (req, res, next) => {
  *      '200':
  *        description: A successful response
  */
-router.get("/recent/{id}", async (req, res, next) => {
+router.get("/recent/:id", async (req, res, next) => {
   var id = req.params.id;
   if (!isInt(id)) {
     return next(error(400, "ID must be an integer"));
