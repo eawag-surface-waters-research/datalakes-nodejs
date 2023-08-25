@@ -13,9 +13,7 @@ router.get("/", async (req, res, next) => {
     if (!isInt(parameters_id)) {
       return next(error(400, "ID must be an integer"));
     }
-    var {
-      rows,
-    } = await db.query(
+    var { rows } = await db.query(
       "SELECT * FROM datasetparameters WHERE datasets_id = $1 AND parameters_id = $2",
       [datasets_id, parameters_id]
     );
@@ -28,9 +26,7 @@ router.get("/", async (req, res, next) => {
     if (!isInt(id)) {
       return next(error(400, "ID must be an integer"));
     }
-    var {
-      rows,
-    } = await db.query(
+    var { rows } = await db.query(
       "SELECT * FROM datasetparameters WHERE datasets_id = $1",
       [id]
     );
@@ -48,7 +44,7 @@ router.get("/", async (req, res, next) => {
  * @swagger
  * /datasetparameters/{dataset_id}:
  *  get:
- *    tags: 
+ *    tags:
  *       ['Dataset Parameters']
  *    description: Get parameters of specific dataset based on id
  *    parameters:
@@ -62,14 +58,14 @@ router.get("/", async (req, res, next) => {
  *      '200':
  *        description: A successful response
  */
-router.get("/:datasets_id", async (req, res, next) => {
+router.get("/:id", async (req, res, next) => {
   var id = req.params.id;
   if (!isInt(id)) {
     return next(error(400, "ID must be an integer"));
   }
   var { rows } = await db.query(
     "SELECT * FROM datasetparameters WHERE datasets_id = $1",
-    [datasets_id]
+    [id]
   );
   if (rows.length < 1) {
     return next(error(404, "Dataset not found in database"));
@@ -107,7 +103,7 @@ router.post("/", async (req, res, next) => {
     if (parameter.included) {
       var link = parseInt(parameter.link);
       if (isInt(link) && link > -1 && link < datasetparameters.length) {
-        var link_param = datasetparameters.find((dp) => (dp.id === link));
+        var link_param = datasetparameters.find((dp) => dp.id === link);
         await db.query("UPDATE datasetparameters SET link = $1 WHERE id = $2", [
           link_param.new_id,
           parameter.new_id,
@@ -123,9 +119,10 @@ router.delete("/:id", async (req, res, next) => {
   if (!isInt(id)) {
     return next(error(400, "ID must be an integer"));
   }
-  var {
-    rowCount,
-  } = await db.query("DELETE FROM datasetparameters WHERE id = $1", [id]);
+  var { rowCount } = await db.query(
+    "DELETE FROM datasetparameters WHERE id = $1",
+    [id]
+  );
   if (rowCount < 1) {
     return next(error(404, "Dataset not found in database"));
   }
