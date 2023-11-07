@@ -292,6 +292,15 @@ var alplakes = {
   zurich: 11,
   geneva: 14,
   greifensee: 15,
+  ageri: 10,
+  biel: 9,
+  caldonazzo: 8,
+  garda: 7,
+  hallwil: 6,
+  joux: 5,
+  lugano: 4,
+  murten: 3,
+  stmoritz: 2,
 };
 
 function parseAlplakesDateString(datetimeString) {
