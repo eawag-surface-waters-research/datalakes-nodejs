@@ -1,12 +1,17 @@
 const express = require("express");
 const router = express.Router();
 const axios = require("axios");
+const https = require("https");
 const format = require("pg-format");
 const db = require("../db");
 const fs = require("fs");
 const path = require("path");
 const { error, readDateTime, getDateOfWeek } = require("../functions");
 const creds = require("../config");
+
+const agent = new https.Agent({
+  rejectUnauthorized: false,
+});
 
 // S3 Connections
 var AWS = require("aws-sdk");
@@ -40,7 +45,6 @@ getS3BucketKeys = async (params, bucket, allKeys = []) => {
 
 // Get data
 const lakejson = require("../data/morphology/swisslakes.json");
-var meteolakesapi = require("../data/swagger/meteolakesapi.json");
 var remotesensingapi = require("../data/swagger/remotesensingapi.json");
 
 // Lake Morphology
@@ -283,77 +287,46 @@ router.get("/ch2018/:lake", async (req, res, next) => {
   }
 });
 
-// Meteolakes
-var meteolakes = [
-  {
-    datasets_id: 11,
-    name: "Lake Zürich",
-    api: "http://meteolakes.ch/meteolac/data_zurich/YYYY/temperature/data_weekWW.csv.json",
-  },
-  {
-    datasets_id: 14,
-    name: "Lake Geneva",
-    api: "http://meteolakes.ch/meteolac/data/YYYY/temperature/data_weekWW.csv.json",
-  },
-  {
-    datasets_id: 15,
-    name: "Lake Greifen",
-    api: "http://meteolakes.ch/meteolac/data_greifensee/YYYY/velocity/data_weekWW.csv.json",
-  },
-  {
-    datasets_id: "TBD",
-    name: "Lake Biel",
-    api: "http://meteolakes.ch/meteolac/data_biel/YYYY/temperature/data_weekWW.csv.json",
-  },
-];
+// Alplakes
+var alplakes = {
+  zurich: 11,
+  geneva: 14,
+  greifensee: 15,
+};
 
-router.get("/update/meteolakes", async (req, res, next) => {
-  var { data: avail } = await axios.get(
-    "http://meteolakes.ch/meteolac/available_data_netcdf.json",
-    { timeout: 2000 }
+function parseAlplakesDateString(datetimeString) {
+  const parts = datetimeString.split(/[- :]/);
+  const year = parseInt(parts[0], 10);
+  const month = parseInt(parts[1], 10) - 1;
+  const day = parseInt(parts[2], 10);
+  const hours = parseInt(parts[3], 10);
+  const minutes = parseInt(parts[4], 10);
+  return new Date(year, month, day, hours, minutes);
+}
+
+router.get("/update/alplakes", async (req, res, next) => {
+  var { data } = await axios.get(
+    "https://alplakes-api.eawag.ch/simulations/metadata",
+    { timeout: 2000, httpsAgent: agent }
   );
-  for (var lake of meteolakes) {
-    if (lake.datasets_id !== "TBD") {
-      let lakeweeks = avail.find((d) => (d.name = lake.name));
-      let year = Math.max(
-        ...Object.keys(lakeweeks.data).map((l) =>
-          parseFloat(l.replace("Y", ""))
-        )
-      );
-      let interval = 180;
-      let week = Math.max(...lakeweeks.data["Y" + year]);
-      let api = lake.api.replace("YYYY", year).replace("WW", week);
+  data = data.find((d) => d.model === "delft3d-flow")["lakes"];
+  for (var lake of data) {
+    if (lake.name in alplakes) {
       try {
-        let tmp = await axios.get(api, { timeout: 2000 });
-        let timesteps = tmp.data.Timesteps - 1;
-        let weekstart = getDateOfWeek(week, year).getTime();
-        let maxdatetime = new Date(
-          weekstart + 2 * 60 * 60 * 1000 + interval * timesteps * 60 * 1000
+        let mindatetime = parseAlplakesDateString(lake["start_date"]);
+        let maxdatetime = parseAlplakesDateString(lake["end_date"]);
+        await db.query(
+          "UPDATE files SET mindatetime = $1, maxdatetime = $2 WHERE datasets_id = $3",
+          [mindatetime, maxdatetime, alplakes[lake.name]]
         );
         await db.query(
-          "UPDATE files SET maxdatetime = $1 WHERE datasets_id = $2",
-          [maxdatetime, lake.datasets_id]
+          "UPDATE datasets SET mindatetime = $1, maxdatetime = $2 WHERE id = $3",
+          [mindatetime, maxdatetime, alplakes[lake.name]]
         );
-        await db.query("UPDATE datasets SET maxdatetime = $1 WHERE id = $2", [
-          maxdatetime,
-          lake.datasets_id,
-        ]);
       } catch (e) {}
     }
   }
   res.status(200).send("Success");
-});
-
-router.get("/meteolakes/available", async (req, res, next) => {
-  var { data } = await axios.get(
-    "http://meteolakes.ch/meteolac/available_data_netcdf.json",
-    { timeout: 2000 }
-  );
-  res.status(200).send(data);
-});
-
-router.get("/meteolakes/api", async (req, res, next) => {
-  res.status(200).send(meteolakesapi);
 });
 
 // Simstrat
