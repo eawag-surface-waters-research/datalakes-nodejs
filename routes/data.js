@@ -31,6 +31,10 @@ const { isInt, error } = require("../functions");
  *        description: A successful response
  */
 router.get("/:dataset_id/:parameter", async (req, res, next) => {
+  var x_index = false;
+  if (req.query.x_index){
+    x_index = req.query.x_index
+  }
   var id = req.params.dataset_id;
   var parameter = req.params.parameter;
   var timestamp = new Date();
@@ -115,10 +119,14 @@ router.get("/:dataset_id/:parameter", async (req, res, next) => {
   if (data[parameter] === undefined) {
     return next(error(404, "Invalid parameter please select another"));
   }
-  var array = data[parameter];
   var value;
-  if (Array.isArray(array[0])) {
-    return next(error(404, "Endpoint is only valid for 1D outputs"));
+  if (Array.isArray(data[parameter][0])) {
+    if (x_index) {
+      value = data[parameter][x_index][index]
+    } else {
+      return next(error(404, "Endpoint is only valid for 1D outputs"));
+    }
+    
   } else {
     value = data[parameter][index];
   }
