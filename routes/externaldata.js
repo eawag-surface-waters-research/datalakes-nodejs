@@ -304,13 +304,11 @@ var alplakes = {
 };
 
 function parseAlplakesDateString(datetimeString) {
-  const parts = datetimeString.split(/[- :]/);
+  const parts = datetimeString.split("-");
   const year = parseInt(parts[0], 10);
   const month = parseInt(parts[1], 10) - 1;
   const day = parseInt(parts[2], 10);
-  const hours = parseInt(parts[3], 10);
-  const minutes = parseInt(parts[4], 10);
-  return new Date(year, month, day, hours, minutes);
+  return new Date(year, month, day);
 }
 
 router.get("/update/alplakes", async (req, res, next) => {
