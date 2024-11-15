@@ -112,7 +112,7 @@ router.get("/:id", async (req, res, next) => {
         var newfiles = [file];
       }
 
-      newfiles = newfiles.filter((f) => f.split(".")[1] === "nc");
+      newfiles = newfiles.filter((f) => f.endsWith('.nc'));
       var values = newfiles.map((f) => [
         id,
         `git/${repos_id}/${dir}/${f}`,
