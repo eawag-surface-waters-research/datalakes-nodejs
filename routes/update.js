@@ -181,7 +181,7 @@ router.get("/:id", async (req, res, next) => {
     );
 
     var localFileList = fs.readdirSync(folder);
-    localFileList = localFileList.filter((f) => f.split(".")[1] === "nc");
+    localFileList = localFileList.filter((f) => f.endsWith('.nc'));
     localFileList = localFileList.map((f) => `${folder}/${f}`);
     var { rows: globalFileList } = await db.query(
       "SELECT * FROM files WHERE datasets_id = $1",

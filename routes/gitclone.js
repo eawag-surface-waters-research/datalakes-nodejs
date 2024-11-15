@@ -351,7 +351,7 @@ router.post("/files/", async (req, res, next) => {
     res.status(200).send({ status_id, file, files: outObj });
   } else if (fs.existsSync(folder)) {
     var files = fs.readdirSync(folder);
-    files = files.filter((f) => f.split(".")[1] === "nc");
+    files = files.filter((f) => f.endsWith('.nc'));
     if (files.length > 0) {
       var values = files.map((f) => [id, `${folder}/${f}`, "nc"]);
       var query = format(

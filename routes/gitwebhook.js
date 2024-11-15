@@ -132,7 +132,7 @@ router.post("/", async (req, res, next) => {
           );
           var { dir } = parseUrl(dataset.datasourcelink);
           var localFileList = fs.readdirSync("git/" + repos_id + "/" + dir);
-          localFileList = localFileList.filter((f) => f.split(".")[1] === "nc");
+          localFileList = localFileList.filter((f) => f.endsWith('.nc'));
           localFileList = localFileList.map(
             (lfl) => "git/" + repos_id + "/" + dir + "/" + lfl
           );
