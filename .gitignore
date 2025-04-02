@@ -9,5 +9,6 @@ metadata/*
 files/*
 !files/.gitkeep
 .npmrc
+.env
 config.js
 data/datalakes

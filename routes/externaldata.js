@@ -15,11 +15,6 @@ const agent = new https.Agent({
 
 // S3 Connections
 var AWS = require("aws-sdk");
-AWS.config.update({
-  accessKeyId: creds.AWS_accessKeyId,
-  secretAccessKey: creds.AWS_secretAccessKey,
-  region: creds.AWS_region,
-});
 AWS.config.setPromisesDependency();
 var s3_rs = new AWS.S3({
   params: {

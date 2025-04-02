@@ -1,0 +1,42 @@
+services:
+  database:
+    image: postgres:16
+    container_name: datalakes_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_DATABASE}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./db/datalakes_schema.sql:/docker-entrypoint-initdb.d/datalakes_schema.sql
+      - ./db/default_data.sql:/docker-entrypoint-initdb.d/default_data.sql
+
+
+  app:
+    build: .
+    container_name: datalakes
+    restart: always
+    depends_on:
+      - database
+    environment:
+      DB_HOST: ${DB_HOST}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_DATABASE: ${DB_DATABASE}
+      DB_PORT: ${DB_PORT}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+    ports:
+      - "4000:4000"
+    volumes:
+      - ~/.ssh:/root/.ssh
+      - ./data:/usr/src/app/data
+      - ./git:/usr/src/app/git
+      - ./files:/usr/src/app/files
+    command: ["node", "index.js"]
+
+volumes:
+  postgres_data:

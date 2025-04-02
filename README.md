@@ -6,71 +6,41 @@
 
 This is a NodeJS REST-API for the datalakes project. 
 
-## Server Set Up
+## Local Development
 
-These set up instructions are for a Ubuntu server and may vary depending on version and operating system.
+1. Clone the repository
 
-### Install packages 
-```console
-sudo su
-sudo add-apt-repository ppa:git-core/ppa -y
-sudo apt-get update
-sudo apt-get install git -y
-curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | sudo bash
-sudo apt-get install git-lfs
-git lfs install
-sudo apt-get install python3
-sudo apt-get install awscli
-sudo apt-get install gcc gfortran
-sudo apt-get install libnetcdf-dev libnetcdff-dev
-sudo apt-get install curl
-curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -
-sudo apt-get install -y nodejs
-sudo apt-get install gcc g++ make
-npm install -g node-gyp
+```console 
+git clone https://github.com/eawag-surface-waters-research/datalakes-nodejs.git
 ```
 
-### Add AWS Credentials
-```console
-nano ~/.aws/credentials
-[default]
-aws_access_key_id =
-aws_secret_access_key =
+2. Set up ssh keys for https://gitlab.renkulab.io/
+
+3. Create `.env` file from template `env.example`
+
+4. Create `config.json` file from template `config_example.json`
+
+5. Run docker compose
+
+```console 
+docker compose up -d --build
 ```
 
-### Clone Repo and install packages
-```console
-git clone git@github.com:Datalakes-Eawag/datalakes-nodejs.git
-cd datalakes-nodejs
-sudo npm install
+You can stop service with 
+
+```console 
+docker compose down
 ```
 
-### Setup PM2 
-(Advanced process manager for production Node.js applications)
-```console
-npm install -g pm2
-pm2 start app.js --name datalakes
-pm2 save
-pm2 startup
-```
-PM2 Controls
-```console
-pm2 list
-pm2 stop datalakes
-pm2 restart datalakes
-pm2 delete datalakes
-```
+## Production
 
-### Add CronJobs for updating external datasets
-```console
-crontab -e
-0 1 * * * curl -s http://api.datalakes-eawag.ch/externaldata/update/simstrat > /dev/null
-0 1 * * * curl -s http://api.datalakes-eawag.ch/externaldata/update/meteolakes > /dev/null
+As above but add production DB credentials to `config.json`
+
+```console 
+docker build -t datalakes .
+
+docker run -v $(pwd)/data:/usr/src/app/data -v ~/.ssh:/root/.ssh -e AWS_ACCESS_KEY_ID=***** -e AWS_SECRET_ACCESS_KEY=***** -p 4000:4000 datalakes
 ```
-
-## Database set up
-
-The PostgreSQL database schema is available [here](https://github.com/Datalakes-Eawag/datalakes-nodejs/blob/master/db/datalakes_schema.sql). This can be used to recreate the datalakes database and be populated with custom data. The database is vital for the functioning of the application. 
 
 [mit-by]: https://opensource.org/licenses/MIT
 [mit-by-shield]: https://img.shields.io/badge/License-MIT-g.svg
