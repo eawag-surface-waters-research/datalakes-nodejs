@@ -3,7 +3,7 @@ const router = new Router();
 const db = require("../db");
 
 router.post("/", async (req, res, next) => {
-  var { id, start, end, parameters, description, reporter, sensordepths, datasetparameters, state } =
+  var { id, start, end, parameters, description, reporter, sensordepths, datasetparameters, state, issue } =
     req.body;
 
   // Verify inputs
@@ -12,7 +12,7 @@ router.post("/", async (req, res, next) => {
 
   for (let i = 0; i < parameters.length; i++) {
     var query =
-      "INSERT INTO maintenance (datasets_id, parameters_id, starttime, endtime, depths, description, reporter, datasetparameters_id, state) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)";
+      "INSERT INTO maintenance (datasets_id, parameters_id, starttime, endtime, depths, description, reporter, datasetparameters_id, state, issue) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)";
     await db.query(query, [
       id,
       parameters[i],
@@ -23,6 +23,7 @@ router.post("/", async (req, res, next) => {
       reporter,
       datasetparameters[i],
       state || "reported",
+      issue
     ]);
   }
   res.status(200).send("Added maintenance event to database.");
@@ -34,7 +35,7 @@ router.get("/:datasets_id", async (req, res, next) => {
     return next(error(400, "ID must be an integer"));
   }
   var { rows } = await db.query(
-    "SELECT m.id, m.starttime, m.endtime, m.depths, p.name, dp.parseparameter, dp.detail, m.description, m.reporter, m.datasetparameters_id, m.state FROM maintenance m INNER JOIN datasetparameters dp ON m.datasetparameters_id = dp.id AND m.parameters_id = dp.parameters_id INNER JOIN parameters p ON p.id = m.parameters_id WHERE m.datasets_id = $1",
+    "SELECT m.id, m.starttime, m.endtime, m.depths, p.name, dp.parseparameter, dp.detail, m.description, m.reporter, m.datasetparameters_id, m.state, m.issue FROM maintenance m INNER JOIN datasetparameters dp ON m.datasetparameters_id = dp.id AND m.parameters_id = dp.parameters_id INNER JOIN parameters p ON p.id = m.parameters_id WHERE m.datasets_id = $1",
     [datasets_id]
   );
   res.status(200).send(rows);
