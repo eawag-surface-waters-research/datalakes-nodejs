@@ -41,6 +41,19 @@ router.get("/:datasets_id", async (req, res, next) => {
   res.status(200).send(rows);
 });
 
+router.put("/:id/issue", async (req, res, next) => {
+  var id = req.params.id;
+  if (!isInt(id)) {
+    return next(error(400, "ID must be an integer"));
+  }
+  var { issue } = req.body;
+  await db.query(
+    "UPDATE maintenance SET issue = $1 WHERE id = $2",
+    [issue, id]
+  );
+  res.status(200).send();
+});
+
 router.put("/:id/state", async (req, res, next) => {
   var id = req.params.id;
   if (!isInt(id)) {
