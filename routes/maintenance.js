@@ -35,7 +35,7 @@ router.get("/:datasets_id", async (req, res, next) => {
     return next(error(400, "ID must be an integer"));
   }
   var { rows } = await db.query(
-    "SELECT m.id, m.starttime, m.endtime, m.depths, p.name, dp.parseparameter, dp.detail, m.description, m.reporter, m.datasetparameters_id, m.state, m.issue FROM maintenance m INNER JOIN datasetparameters dp ON m.datasetparameters_id = dp.id AND m.parameters_id = dp.parameters_id INNER JOIN parameters p ON p.id = m.parameters_id WHERE m.datasets_id = $1",
+    "SELECT m.id, m.starttime, m.endtime, m.depths, p.name, dp.parseparameter, dp.detail, m.description, m.reporter, m.datasetparameters_id, m.state, m.issue, m.request FROM maintenance m INNER JOIN datasetparameters dp ON m.datasetparameters_id = dp.id AND m.parameters_id = dp.parameters_id INNER JOIN parameters p ON p.id = m.parameters_id WHERE m.datasets_id = $1",
     [datasets_id]
   );
   res.status(200).send(rows);
@@ -59,14 +59,24 @@ router.put("/:id/state", async (req, res, next) => {
   if (!isInt(id)) {
     return next(error(400, "ID must be an integer"));
   }
-  var { state } = req.body;
+  var { state, request } = req.body;
   if (!state || !["reported", "confirmed", "resolved"].includes(state)) {
     return next(error(400, "State must be one of: reported, confirmed, resolved"));
   }
-  await db.query(
-    "UPDATE maintenance SET state = $1 WHERE id = $2",
-    [state, id]
-  );
+  if (request && state !== "resolved") {
+    return next(error(400, "Request can only be set when state is resolved"));
+  }
+  if (request) {
+    await db.query(
+      "UPDATE maintenance SET request = $1, state = $2 WHERE id = $3",
+      [request, state, id]
+    );
+  } else {
+    await db.query(
+      "UPDATE maintenance SET request = NULL, state = $1 WHERE id = $2",
+      [state, id]
+    );
+  }
   res.status(200).send();
 });
 
