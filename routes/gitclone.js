@@ -164,8 +164,8 @@ router.post("/", async (req, res, next) => {
           let bucket_name = bucket.replace("https://", "").split(".")[0];
           let remote = ssh.split("@")[1].split(".git", 1)[0].split(":");
           let host = remote[0];
-          let group = remote[1].split("/")[0];
-          let repository = remote[1].split("/")[1];
+          let group = remote[1].substring(0, remote[1].lastIndexOf("/"));
+          let repository = remote[1].substring(remote[1].lastIndexOf("/") + 1);
           const s3 = new AWS.S3();
 
           const params = {
@@ -283,8 +283,8 @@ router.post("/files/", async (req, res, next) => {
     var bucket_name = bucket.replace("https://", "").split(".")[0];
     var remote = ssh.split("@")[1].split(".git", 1)[0].split(":");
     var host = remote[0];
-    var group = remote[1].split("/")[0];
-    var repository = remote[1].split("/")[1];
+    var group = remote[1].substring(0, remote[1].lastIndexOf("/"));
+    var repository = remote[1].substring(remote[1].lastIndexOf("/") + 1);
 
     const s3 = new AWS.S3();
 

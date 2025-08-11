@@ -71,8 +71,8 @@ router.get("/:id", async (req, res, next) => {
     var bucket_name = bucket.replace("https://", "").split(".")[0];
     var remote = repository.ssh.split("@")[1].split(".git", 1)[0].split(":");
     var host = remote[0];
-    var group = remote[1].split("/")[0];
-    var repository = remote[1].split("/")[1];
+    var group = remote[1].substring(0, remote[1].lastIndexOf("/"));
+    var repository = remote[1].substring(remote[1].lastIndexOf("/") + 1);
     var parts = dataset.datasourcelink.split("/");
     var folder = `git/${dataset.repositories_id}/${parts
       .slice(0, parts.length - 1)
