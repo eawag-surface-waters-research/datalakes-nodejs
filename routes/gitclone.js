@@ -78,7 +78,7 @@ router.post("/", async (req, res, next) => {
   }
 
   // Check if repository has been cloned
-  var repo_name = ssh.substring(remote[1].lastIndexOf("/") + 1).split(".")[0];
+  var repo_name = ssh.substring(ssh.lastIndexOf("/") + 1).split(".")[0];
   var mode = "new";
   if (fs.existsSync(`git/${repo_id}/${repo_name}`)) {
     mode = "existing";
