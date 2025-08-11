@@ -143,6 +143,9 @@ parseUrl = (url) => {
     } else if (url.includes("gitlab.com")) {
       ssh =
         "git@gitlab.com:" + url_split[0].split("gitlab.com/").pop() + ".git";
+    } else if (url.includes("gitlab.eawag.ch")) {
+      ssh =
+        "git@gitlab.eawag.ch:" + url_split[0].split("gitlab.eawag.ch/").pop() + ".git";
     }
   } else {
     var path = url.split("/");
@@ -166,6 +169,10 @@ parseSSH = (ssh) => {
   } else if (ssh.includes("git@gitlab.renkulab.io")) {
     var folder = ssh.split(":")[1].split(".")[0];
     var url = "https://gitlab.renkulab.io/" + folder;
+    return { url, folder };
+  } else if (ssh.includes("git@gitlab.eawag.ch")) {
+    var folder = ssh.split(":")[1].split(".")[0];
+    var url = "https://gitlab.eawag.ch/" + folder;
     return { url, folder };
   } else if (ssh.includes("git@github.com")) {
     var folder = ssh.split(":")[1].split(".")[0];
