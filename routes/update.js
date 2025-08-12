@@ -45,7 +45,7 @@ router.get("/:id", async (req, res, next) => {
   res.status(200).send(`Updating dataset ${id}.`);
   logger("get", "update", `Updating dataset ${id}.`);
 
-  var name = repository.ssh.split(":")[1].split("/")[1].split(".")[0];
+  var name = repository.ssh.substring(repository.ssh.lastIndexOf("/") + 1).split(".")[0];
   var gitCommand = `cd git/${dataset.repositories_id}/${name} && git pull`;
 
   logger("get", "update", `Pulling repo ${repository.ssh}.`, (indent = 1));
@@ -53,7 +53,6 @@ router.get("/:id", async (req, res, next) => {
   var code = await cmd(gitCommand);
   if (code !== 0) {
     logger("get", "update", `Failed to pull.`, (indent = 1));
-    return;
   } else {
     logger("get", "update", `Completed pull.`, (indent = 1));
   }
