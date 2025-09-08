@@ -9,6 +9,7 @@ RUN apt-get update && \
     apt-get install -y \
     curl \
     git \
+    git-lfs \
     python2.7 \
     awscli \
     gcc \
