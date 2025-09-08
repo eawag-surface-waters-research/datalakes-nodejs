@@ -8,5 +8,7 @@ module.exports = {
   apiUrl: "https://localhost:4000", // URL of this Nodejs app 
   API_KEY: "", // Set API access key for automated access to protected datasets
   sendgrid_token: "", // Sendgrid token for sending automated emails
-  default_port: 4000 // Default port
+  default_port: 4000, // Default port
+  GITHUB_CLIENT_ID: "", 
+  GITHUB_CLIENT_SECRET: ""
 };
