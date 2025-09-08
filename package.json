@@ -4,10 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
-    "migrate": "node-pg-migrate up",
-    "migrate:create": "node-pg-migrate create",
-    "migrate:down": "node-pg-migrate down"
+    "start": "node index.js"
   },
   "engines": {
     "node": "v8.10.0"
@@ -39,9 +36,5 @@
     "pg": "^7.14.0",
     "pg-format": "^1.0.4",
     "swagger-jsdoc": "^4.0.0"
-  },
-  "devDependencies": {
-    "dotenv": "^1.2.0",
-    "node-pg-migrate": "^2.6.0"
   }
 }

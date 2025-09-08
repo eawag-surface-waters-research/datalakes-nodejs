@@ -47,15 +47,11 @@ RUN npm install
 # Copy the entire application source code
 COPY . .
 
-# Copy the entrypoint script
-COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
-RUN chmod +x /usr/local/bin/docker-entrypoint.sh
-
 # Expose the application port
 EXPOSE 4000
 
 # Create directories inside the container to store mounted data (optional)
 RUN mkdir -p /usr/src/app/data /usr/src/app/logs
 
-# Use the entrypoint script to run migrations + start server
-ENTRYPOINT ["sh", "/usr/local/bin/docker-entrypoint.sh"]
+# Start the application
+CMD ["node", "index.js"]
