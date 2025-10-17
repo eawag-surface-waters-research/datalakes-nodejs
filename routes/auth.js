@@ -9,14 +9,17 @@ router.post("/github/token", async (req, res) => {
   try {
     // Step 3: Exchange code for access token
     const tokenRes = await axios.post(
-      'https://github.com/login/oauth/access_token',
-      {
+      "https://github.com/login/oauth/access_token",
+      querystring.stringify({
         client_id: process.env.GITHUB_CLIENT_ID,
         client_secret: process.env.GITHUB_CLIENT_SECRET,
         code,
-      },
+      }),
       {
-        headers: { Accept: 'application/json' },
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
       }
     );
 
