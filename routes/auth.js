@@ -1,6 +1,7 @@
 const Router = require("express-promise-router");
 const router = new Router();
 const axios = require("axios");
+const creds = require("../config");
 
 // Step 2: GitHub redirects back here with a code
 router.post("/github/token", async (req, res) => {
@@ -11,8 +12,8 @@ router.post("/github/token", async (req, res) => {
     const tokenRes = await axios.post(
       'https://github.com/login/oauth/access_token',
       {
-        client_id: process.env.GITHUB_CLIENT_ID,
-        client_secret: process.env.GITHUB_CLIENT_SECRET,
+        client_id: process.env.GITHUB_CLIENT_ID || creds.GITHUB_CLIENT_ID,
+        client_secret: process.env.GITHUB_CLIENT_SECRET || creds.GITHUB_CLIENT_SECRET,
         code,
       },
       {
