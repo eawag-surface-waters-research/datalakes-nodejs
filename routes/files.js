@@ -85,7 +85,9 @@ router.get("/recent/:id", async (req, res, next) => {
     AND datasets_id = $1
     AND filetype = 'json'
     OR (
-        NOT EXISTS (
+        datasets_id = $1
+        AND filetype = 'json'
+        AND NOT EXISTS (
             SELECT 1
             FROM files
             WHERE mindatetime <= $2
