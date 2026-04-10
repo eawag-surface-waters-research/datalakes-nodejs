@@ -269,7 +269,10 @@ CREATE TABLE public.maintenance (
     description character varying,
     reporter character varying,
     datasets_id integer,
-    datasetparameters_id integer
+    datasetparameters_id integer,
+    state character varying,
+    issue character varying,
+    request character varying
 );
 
 
