@@ -23,8 +23,9 @@ parseEventDate = (dateString) => {
   // Extract time components (after the space)
   const timeStr = dateString.substring(9);
   
-  // Construct a date string in ISO format: YYYY-MM-DDTHH:mm:ss
-  const isoString = `${year}-${month}-${day}T${timeStr}`;
+  // Construct a UTC date string in ISO format: YYYY-MM-DDTHH:mm:ssZ
+  // (events files are in UTC; without Z the server's time zone is used)
+  const isoString = `${year}-${month}-${day}T${timeStr}Z`;
   
   return new Date(isoString);
 };
