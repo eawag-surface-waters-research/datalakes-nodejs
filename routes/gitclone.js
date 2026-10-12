@@ -290,7 +290,7 @@ router.post("/files/", async (req, res, next) => {
 
     const params = {
       Bucket: bucket_name,
-      Prefix: `${host}/${group}/${repository}/${folder_path}`,
+      Prefix: `${host}/${group}/${repository}/${folder_path}/`,
       MaxKeys: 1000,
     };
 
