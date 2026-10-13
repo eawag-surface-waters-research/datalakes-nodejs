@@ -4,7 +4,7 @@ const db = require("../db");
 const fs = require("fs");
 const csv = require('csv-parser');
 const zip = require("express-zip");
-const { error } = require("../functions");
+const { error, eventsFilePath } = require("../functions");
 
 parseSQLarray = (string) => {
   return string
@@ -67,7 +67,11 @@ router.get("/events/:id", async (req, res, next) => {
 
   var dataset = rows[0];
   var dir = dataset.datasourcelink.split("/")[0];
-  var eventsPath = `git/${dataset.repositories_id}/${dir}/notes/events.csv`;
+  var eventsFile = eventsFilePath(dataset.eventsfile);
+  if (!eventsFile) {
+    return next(error(400, "Invalid events file path"));
+  }
+  var eventsPath = `git/${dataset.repositories_id}/${dir}/${eventsFile}`;
   if (!fs.existsSync(eventsPath)) {
     return next(error(404, "Events file not found"));
   }

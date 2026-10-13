@@ -142,7 +142,8 @@ CREATE TABLE public.datasets (
     accompanyingdata character varying,
     dataportal character varying,
     monitor integer,
-    internal character varying
+    internal character varying,
+    eventsfile character varying
 );
 
 

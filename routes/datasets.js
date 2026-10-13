@@ -6,6 +6,7 @@ const {
   dataTypeVerification,
   unix2psqltime,
   error,
+  eventsFilePath,
 } = require("../functions");
 
 /**
@@ -50,7 +51,7 @@ router.get("/:id", async (req, res, next) => {
     return next(error(400, "ID must be an integer"));
   }
   var { rows } = await db.query(
-    "SELECT accompanyingdata, citation, datasource, datasourcelink, description, downloads, embargo, fileconnect, datasets.id, lakes_id, latitude, licenses_id, liveconnect, longitude, mapplot, mapplotfunction, maxdatetime, maxdepth, mindatetime, mindepth, organisations_id, origin, persons_id, plotproperties, prefile, prescript, projects_id, renku, repositories_id, ssh, title, monitor FROM datasets LEFT JOIN repositories ON datasets.repositories_id=repositories.id WHERE datasets.id = $1",
+    "SELECT accompanyingdata, citation, datasource, datasourcelink, description, downloads, embargo, fileconnect, datasets.id, lakes_id, latitude, licenses_id, liveconnect, longitude, mapplot, mapplotfunction, maxdatetime, maxdepth, mindatetime, mindepth, organisations_id, origin, persons_id, plotproperties, prefile, prescript, projects_id, renku, repositories_id, ssh, title, monitor, eventsfile FROM datasets LEFT JOIN repositories ON datasets.repositories_id=repositories.id WHERE datasets.id = $1",
     [id]
   );
   if (rows.length < 1) {
@@ -69,6 +70,8 @@ router.post("/", async (req, res, next) => {
     return next(error(400, "Request body not an object"));
   } else if (!verified) {
     return next(error(400, "Request object does not agree with data type"));
+  } else if (output.eventsfile && !eventsFilePath(output.eventsfile)) {
+    return next(error(400, "Invalid events file path"));
   }
   // Build query
   var attr = [];
@@ -115,6 +118,8 @@ router.put("/", async (req, res, next) => {
     return next(error(400, "Request body not an object"));
   } else if (!verified) {
     return next(error(400, "Request object does not agree with data type"));
+  } else if (output.eventsfile && !eventsFilePath(output.eventsfile)) {
+    return next(error(400, "Invalid events file path"));
   }
   // Build query
   var values = [];

@@ -103,6 +103,20 @@ dataTypeVerification = async (tableName, input) => {
   }
 };
 
+eventsFilePath = (eventsfile) => {
+  // events file relative to the repository root, null if not a safe path
+  var path = (eventsfile || "").trim() || "notes/events.csv";
+  if (
+    path.startsWith("/") ||
+    path.includes("\\") ||
+    path.split("/").includes("..") ||
+    !path.endsWith(".csv")
+  ) {
+    return null;
+  }
+  return path;
+};
+
 error = (code, message, description = "") => {
   let error = new Error(message);
   error.statusCode = code;
@@ -341,6 +355,7 @@ module.exports = {
   walk: walk,
   dataTypeVerification: dataTypeVerification,
   error: error,
+  eventsFilePath: eventsFilePath,
   parseUrl: parseUrl,
   parseSSH: parseSSH,
   parseDateTime: parseDateTime,
